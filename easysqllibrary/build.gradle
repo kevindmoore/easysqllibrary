@@ -1,0 +1,108 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+android {
+    compileSdkVersion parent.ext.androidCompileSdkVersion
+    buildToolsVersion parent.ext.androidBuildToolsVersion
+
+    defaultConfig {
+        minSdkVersion parent.ext.androidMinSdkVersion
+        targetSdkVersion parent.ext.androidTargetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile "com.mastertechsoftware.logging:loglibrary:1.0.0"
+}
+
+task generateSourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier 'sources'
+}
+
+task generateJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath()
+            .join(File.pathSeparator))
+    classpath += project.files(configurations.compile)
+//    excludes = ['com.mastertechsoftware.logging.*']
+    println(classpath.getFiles())
+    failOnError false
+}
+
+task generateJavadocsJar(type: Jar) {
+    from generateJavadocs.destinationDir
+    classifier 'javadoc'
+}
+
+generateJavadocsJar.dependsOn generateJavadocs
+
+artifacts {
+    archives generateJavadocsJar
+    archives generateSourcesJar
+}
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            name 'easysqllibrary'
+            description 'Library for SQLite'
+            url 'https://github.com/kevindmoore/easysqllibrary'
+            inceptionYear '2016'
+
+            packaging 'aar'
+            groupId 'com.mastertechsoftware.easysqllibrary'
+            artifactId 'easysqllibrary'
+            version '1.0.0'
+
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+            scm {
+                connection 'https://github.com/kevindmoore/easysqllibrary.git'
+                url 'https://github.com/kevindmoore/easysqllibrary'
+
+            }
+            developers {
+                developer {
+                    name 'Kevin Moore'
+                }
+            }
+        }
+    }
+}
+
+group = 'com.mastertechsoftware.easysqllibrary'
+version = '1.0.0'
+
+bintray {
+    user = parent.ext.bintray_user
+    key = parent.ext.bintray_key
+    dryRun = false //Whether to run this as dry-run, without deploying
+    pkg {
+        repo = 'maven'
+        name = 'easysqllibrary'
+
+        labels = ['android']
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/kevindmoore/easysqllibrary.git'
+        websiteUrl = 'https://github.com/kevindmoore/easysqllibrary'
+    }
+    configurations = ['archives']
+}

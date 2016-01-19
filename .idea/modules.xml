@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/EasySQLLibrary.iml" filepath="$PROJECT_DIR$/EasySQLLibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/easysqllibrary/easysqllibrary.iml" filepath="$PROJECT_DIR$/easysqllibrary/easysqllibrary.iml" />
+    </modules>
+  </component>
+</project>
