@@ -1,1 +1,3 @@
 include ':easysqllibrary'
+//include ':logging'
+//project(':logging').projectDir = new File('../AndroidLogging/loglibrary')
