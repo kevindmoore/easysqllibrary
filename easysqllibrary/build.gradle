@@ -2,6 +2,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
+def currentVersion = "1.0.3"
+
 android {
     compileSdkVersion parent.ext.androidCompileSdkVersion
     buildToolsVersion parent.ext.androidBuildToolsVersion
@@ -10,7 +12,7 @@ android {
         minSdkVersion parent.ext.androidMinSdkVersion
         targetSdkVersion parent.ext.androidTargetSdkVersion
         versionCode 3
-        versionName "1.0.2"
+        versionName currentVersion
     }
     buildTypes {
         release {
@@ -66,7 +68,7 @@ install {
             packaging 'aar'
             groupId 'com.mastertechsoftware.easysqllibrary'
             artifactId 'easysqllibrary'
-            version '1.0.2'
+            version currentVersion
 
             licenses {
                 license {
@@ -90,7 +92,7 @@ install {
 }
 
 group = 'com.mastertechsoftware.easysqllibrary'
-version = '1.0.2'
+version = currentVersion
 
 bintray {
     user = parent.ext.bintray_user

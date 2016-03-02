@@ -14,12 +14,13 @@ public abstract class AbstractDataMapper<T> implements DataMapper<T> {
 	}
 
     public static boolean isValidType(Class type) {
-        if (type.equals(String.class) || type.equals(Number.class) ||
-			type.equals(Float.class) || type.equals(Integer.class) ||
-            type.equals(Boolean.class) || type.equals(int.class)
-            || type.equals(boolean.class) || type.equals(char.class)
-            || type.equals(float.class) || type.equals(long.class)
-            || type.equals(double.class)) {
+        if (type.equals(String.class) || type.equals(Character.class) || type.equals(Short.class)
+			|| type.equals(Number.class)
+			|| type.equals(Float.class) || type.equals(float.class)
+			|| type.equals(Integer.class) || type.equals(int.class)
+            || type.equals(Boolean.class) || type.equals(boolean.class)
+            || type.equals(Long.class) || type.equals(long.class)
+            || type.equals(double.class) || type.equals(Double.class)) {
             return true;
         }
         return false;

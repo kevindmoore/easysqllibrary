@@ -45,6 +45,17 @@ public class DatabaseHelper {
     }
 
 	/**
+	 *
+	 * @param tableClass
+	 * @param columnName - name of column to search
+	 * @param columnValue - value of column to search
+	 * @return list of items
+	 */
+    public List<? extends ReflectTableInterface> getWhere(Class<? extends ReflectTableInterface> tableClass, String columnName, String columnValue) {
+        return (List<? extends ReflectTableInterface>) DatabaseManager.getInstance().getItemsWhere(databaseName, tableClass, columnName, columnValue);
+    }
+
+	/**
      * Return a list of all the table items
      * @param tableClass
      * @return List of Table

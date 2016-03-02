@@ -36,7 +36,7 @@ public class ReflectTable<T> extends AbstractTable<T> {
             Column.COLUMN_TYPE column_type;
             Class<?> fieldType = field.getType();
             String fieldName = field.getName();
-            if (fieldType == int.class || fieldType == Integer.class) {
+            if (fieldType == int.class || fieldType == Integer.class || fieldType == Short.class) {
                 column_type = Column.COLUMN_TYPE.INTEGER;
             } else if (fieldType == float.class || fieldType == Float.class) {
                 column_type = Column.COLUMN_TYPE.FLOAT;
