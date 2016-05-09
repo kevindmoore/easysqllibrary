@@ -1,8 +1,12 @@
 # EasySQLLibrary
 This library makes using SQLite in Android very easy. You can create a database with 1 line of code and your data models.  
-To start using the library add the following to your build.gradle file (not the root file):  
+To start using the library add the following to your build.gradle file (not the root file):    
+
+## Downloading
+
 ```
-    compile "com.mastertechsoftware.easysqllibrary:easysqllibrary:1.0.2"
+Gradle
+compile "com.mastertechsoftware.easysqllibrary:easysqllibrary:1.0.3"
 ```  
 ### Data Models
 Data models are just POJOs (Plain Old Java Objects). They can subclass any object but must implement ReflectTableInterface. If you would like to subclass a default interface, use the DefaultReflectTable class. EasySQLLibrary will use reflection to pull out the field names for the database. Each POJO will be a table and each field will be a field in the table. You will make 1 create call for each database, passing in all the models you want for that database. This is usually done in the application.  

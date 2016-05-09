@@ -1,5 +1,10 @@
 package com.mastertechsoftware.easysqllibrary.sql;
 
+import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeHolder;
+import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeStrategy;
+import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeTable;
+import com.mastertechsoftware.logging.Logger;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,11 +13,6 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
-
-import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeHolder;
-import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeStrategy;
-import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeTable;
-import com.mastertechsoftware.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +92,9 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
         this.upgradeStrategy = upgradeStrategy;
     }
 
-    /**
+	/**
+	 * Called when the database is created for the first time. This is where the
+	 * creation of tables and the initial population of the tables should happen.
 	 * Check to see if the table exists. If not, create the database.
 	 */
 	@Override
@@ -122,6 +124,15 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	/**
+	 * Add a table to our localDatabase
+	 * @param table
+	 */
+	public void addTable(Table table) {
+		createLocalDB();
+		localDatabase.addTable(table);
+	}
+
+	/**
 	 * Create the database if it was dropped
 	 * @throws DBException
 	 */
@@ -144,6 +155,9 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
      * Setup our databases
      */
     protected void setupDatabases() {
+		if (localDatabase != null) {
+			localDatabase.setDatabase(null); // Need to reset to new database
+		}
         // Create our Databases
         createLocalDB();
         setupMetaDatabase();
@@ -304,7 +318,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	protected void createLocalDB() {
 		if (localDatabase == null) {
 			localDatabase = new Database(sqLiteDatabase);
-		} else {
+		} else if (localDatabase.getDatabase() == null && sqLiteDatabase != null){
 			localDatabase.setDatabase(sqLiteDatabase);
 		}
 	}

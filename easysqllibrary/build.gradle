@@ -2,16 +2,16 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-def currentVersion = "1.0.3"
+def currentVersion = "1.0.4"
 
 android {
-    compileSdkVersion parent.ext.androidCompileSdkVersion
-    buildToolsVersion parent.ext.androidBuildToolsVersion
+    compileSdkVersion androidCompileSdkVersion
+    buildToolsVersion androidBuildToolsVersion
 
     defaultConfig {
-        minSdkVersion parent.ext.androidMinSdkVersion
-        targetSdkVersion parent.ext.androidTargetSdkVersion
-        versionCode 3
+        minSdkVersion androidMinSdkVersion
+        targetSdkVersion androidTargetSdkVersion
+        versionCode 4
         versionName currentVersion
     }
     buildTypes {
@@ -26,7 +26,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile "com.mastertechsoftware.logging:loglibrary:1.0.1"
+    compile libLogging
 //    compile project(':logging')
 }
 
@@ -95,8 +95,8 @@ group = 'com.mastertechsoftware.easysqllibrary'
 version = currentVersion
 
 bintray {
-    user = parent.ext.bintray_user
-    key = parent.ext.bintray_key
+    user = bintray_user
+    key = bintray_key
     dryRun = false //Whether to run this as dry-run, without deploying
     pkg {
         repo = 'maven'

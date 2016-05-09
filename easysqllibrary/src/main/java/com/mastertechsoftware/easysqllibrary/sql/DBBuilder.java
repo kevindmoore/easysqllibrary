@@ -22,6 +22,15 @@ public class DBBuilder {
 
     protected Context context;
 
+	/**
+     * Create a Builder object
+     * @param context
+     * @return DBBuilder
+     */
+    public static DBBuilder create(Context context) {
+        return new DBBuilder(context);
+    }
+
     public DBBuilder(Context context) {
         this.context = context;
     }
@@ -29,25 +38,31 @@ public class DBBuilder {
     /**
      * Set the main table name. This is used to test the existence of the database
      * @param mainTableName
+     * @return DBBuilder
      */
-    public void setMainTableName(String mainTableName) {
+    public DBBuilder setMainTableName(String mainTableName) {
         this.mainTableName = mainTableName;
+        return this;
     }
 
     /**
      * Set the database name. This is the name of the file that is stored in /data/app
      * @param databaseName
+     * @return DBBuilder
      */
-    public void setDatabaseName(String databaseName) {
+    public DBBuilder setDatabaseName(String databaseName) {
         this.databaseName = databaseName;
+        return this;
     }
 
     /**
      * Set the version. Defaults to 1.
      * @param version
+     * @return DBBuilder
      */
-    public void setVersion(int version) {
+    public DBBuilder setVersion(int version) {
         this.version = version;
+        return this;
     }
 
     /**
@@ -66,13 +81,30 @@ public class DBBuilder {
      * Add a table with columns.
      * @param tableName
      * @param columnNames
+     * @return DBBuilder
      */
-    public void addTable(String tableName, List<String> columnNames) {
+    public DBBuilder addTable(String tableName, List<String> columnNames) {
         Table table = addTable(tableName);
         for (String columnName : columnNames) {
             Column column = new Column(columnName, Column.COLUMN_TYPE.TEXT);
             table.addColumn(column);
         }
+        return this;
+    }
+
+	/**
+     * Add a table with the given columns
+     * @param tableName
+     * @param columnNames
+     * @return DBBuilder
+     */
+    public DBBuilder addTable(String tableName, String... columnNames) {
+        Table table = addTable(tableName);
+        for (String columnName : columnNames) {
+            Column column = new Column(columnName, Column.COLUMN_TYPE.TEXT);
+            table.addColumn(column);
+        }
+        return this;
     }
 
     /**
@@ -95,7 +127,7 @@ public class DBBuilder {
     /**
      * Return the Table entry for the given table name.
      * @param tableName
-     * @return
+     * @return TableEntry
      */
     public TableEntry getTableEntry(String tableName) {
         return tableItems.get(tableName);
