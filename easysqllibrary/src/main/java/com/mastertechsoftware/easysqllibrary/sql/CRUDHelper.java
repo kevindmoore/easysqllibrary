@@ -1,10 +1,10 @@
 package com.mastertechsoftware.easysqllibrary.sql;
 
+import com.mastertechsoftware.logging.Logger;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.CancellationSignal;
-
-import com.mastertechsoftware.logging.Logger;
 
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -65,7 +65,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 			item.setId((int) id);
 			return id;
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction", e);
+			Logger.error(this, "Problems starting transaction " + e.getMessage());
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -84,7 +84,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 			databaseHelper.startTransaction();
 			return table.getAllEntries(database, classItem, table.getMapper());
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage());
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -97,7 +97,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
      * @param classItem
      * @param columnName
      * @param columnValue
-     * @return
+     * @return List of items
      */
 	public List<? extends T> getItemsWhere(Class<? extends T> classItem, String columnName, String columnValue) {
 		// Lock it!
@@ -106,7 +106,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 			databaseHelper.startTransaction();
 			return table.getAllEntriesWhere(database, (Class<T>) classItem, columnName, columnValue, table.getMapper());
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage());
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -128,7 +128,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 			databaseHelper.startTransaction();
 			return table.getEntry(database, classItem, columnName, columnValue, table.getMapper());
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -136,6 +136,20 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 		return null;
 	}
 
+	/**
+	 * Query the class
+	 * @param distinct
+	 * @param table
+	 * @param columns
+	 * @param selection
+	 * @param selectionArgs
+	 * @param groupBy
+	 * @param having
+	 * @param orderBy
+	 * @param limit
+	 * @return
+	 * @throws DBException
+	 */
 	public Cursor query(boolean distinct, String table, String[] columns,
 						String selection, String[] selectionArgs, String groupBy,
 						String having, String orderBy, String limit) throws DBException {
@@ -145,7 +159,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 			databaseHelper.startTransaction();
 			return databaseHelper.query(distinct, table, columns, selection, selectionArgs, groupBy, having, orderBy, limit);
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting  transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -153,6 +167,21 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 		return null;
 	}
 
+	/**
+	 * Query the class
+	 * @param distinct
+	 * @param table
+	 * @param columns
+	 * @param selection
+	 * @param selectionArgs
+	 * @param groupBy
+	 * @param having
+	 * @param orderBy
+	 * @param limit
+	 * @param cancellationSignal
+	 * @return
+	 * @throws DBException
+	 */
 	public Cursor query(boolean distinct, String table, String[] columns,
 						String selection, String[] selectionArgs, String groupBy,
 						String having, String orderBy, String limit, CancellationSignal cancellationSignal) throws DBException {
@@ -165,7 +194,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 										selection, selectionArgs, groupBy,
 										having, orderBy, limit, cancellationSignal);
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -173,6 +202,18 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 		return null;
 	}
 
+	/**
+	 * Query the class
+	 * @param table
+	 * @param columns
+	 * @param selection
+	 * @param selectionArgs
+	 * @param groupBy
+	 * @param having
+	 * @param orderBy
+	 * @return
+	 * @throws DBException
+	 */
 	public Cursor query(String table, String[] columns, String selection,
 						String[] selectionArgs, String groupBy, String having,
 						String orderBy)  throws DBException {
@@ -184,7 +225,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 										selection, selectionArgs, groupBy,
 										having, orderBy);
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -192,6 +233,19 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 		return null;
 	}
 
+	/**
+	 * Query the class
+	 * @param table
+	 * @param columns
+	 * @param selection
+	 * @param selectionArgs
+	 * @param groupBy
+	 * @param having
+	 * @param orderBy
+	 * @param limit
+	 * @return
+	 * @throws DBException
+	 */
 	public Cursor query(String table, String[] columns, String selection,
 						String[] selectionArgs, String groupBy, String having,
 						String orderBy, String limit)  throws DBException {
@@ -203,7 +257,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 										selection, selectionArgs, groupBy,
 										having, orderBy, limit);
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -221,7 +275,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 			databaseHelper.startTransaction();
 			databaseHelper.execSQL(sql);
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -238,7 +292,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 			databaseHelper.startTransaction();
 			return table.getAllEntriesWhere(database, classItem, Table.ID, String.valueOf(id), table.getMapper());
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -257,7 +311,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
             databaseHelper.startTransaction();
             return table.getAllEntries(database);
         } catch (DBException e) {
-            Logger.error(this, "Problems starting transaction");
+            Logger.error(this, "Problems starting transaction " + e.getMessage() );
         } finally {
             databaseHelper.endTransaction();
             mLock.unlock();
@@ -277,7 +331,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 			int deleted = table.deleteEntryWhere(database, Table.ID, String.valueOf(id));
 			Logger.debug("Deleted " + deleted + " items ");
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -297,7 +351,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
             int deleted = table.deleteEntryWhere(database, columnName, columnValue);
             Logger.debug("Deleted " + deleted + " items ");
         } catch (DBException e) {
-            Logger.error(this, "Problems starting transaction");
+            Logger.error(this, "Problems starting transaction " + e.getMessage() );
         } finally {
             databaseHelper.endTransaction();
             mLock.unlock();
@@ -311,7 +365,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
             databaseHelper.startTransaction();
             table.deleteAllEntries(database);
         } catch (DBException e) {
-            Logger.error(this, "Problems starting transaction");
+            Logger.error(this, "Problems starting transaction " + e.getMessage() );
         } finally {
             databaseHelper.endTransaction();
             mLock.unlock();
@@ -329,7 +383,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
                 Logger.error("Unable to update table " + table.getTableName());
             }
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -355,7 +409,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 				Logger.error("Unable to update table " + table.getTableName());
 			}
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();
@@ -384,7 +438,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 			databaseHelper.startTransaction();
 			return table.getEntry(database, id, item, table.getMapper());
 		} catch (DBException e) {
-			Logger.error(this, "Problems starting transaction");
+			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {
 			databaseHelper.endTransaction();
 			mLock.unlock();

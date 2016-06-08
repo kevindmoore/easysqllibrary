@@ -71,7 +71,7 @@ public class DatabaseHelper {
      * @return id
      */
     public long add(Class<? extends ReflectTableInterface> tableClass, ReflectTableInterface table) {
-        return  DatabaseManager.getInstance().addItem(databaseName, tableClass, table);
+        return DatabaseManager.getInstance().addItem(databaseName, tableClass, table);
     }
 
 	/**

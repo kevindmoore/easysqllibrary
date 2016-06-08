@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/EasySQLLibrary.iml" filepath="$PROJECT_DIR$/EasySQLLibrary.iml" />
       <module fileurl="file://$PROJECT_DIR$/easysqllibrary/easysqllibrary.iml" filepath="$PROJECT_DIR$/easysqllibrary/easysqllibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/easysqllibraryprocessor/easysqllibraryprocessor.iml" filepath="$PROJECT_DIR$/easysqllibraryprocessor/easysqllibraryprocessor.iml" />
     </modules>
   </component>
 </project>

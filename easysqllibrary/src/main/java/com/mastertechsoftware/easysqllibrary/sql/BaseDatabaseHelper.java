@@ -76,6 +76,9 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
         if (!upgradeCheck) {
             upgradeCheck = true;
             state = STATE.INITIALIZING;
+			if (isOpen()) {
+				Logger.error("Database is already open");
+			}
             sqLiteDatabase = getWritableDatabase(); // This will trigger an onUpgrade if needed
             state = STATE.OPEN;
             // Reset state
@@ -155,9 +158,6 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
      * Setup our databases
      */
     protected void setupDatabases() {
-		if (localDatabase != null) {
-			localDatabase.setDatabase(null); // Need to reset to new database
-		}
         // Create our Databases
         createLocalDB();
         setupMetaDatabase();
@@ -221,9 +221,11 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	public synchronized void open() throws DBException {
         // Already open
 		if (state == STATE.OPEN || state == STATE.OPENING) {
+			Logger.error("open: DB already open");
 			return;
 		}
         if (sqLiteDatabase != null) {
+			Logger.error("open: DB already open");
             return;
         }
 		// Lock it!
@@ -233,6 +235,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 		// case something throws.
 		try {
 			//            Logger.debug(this, "Opening DB");
+			// Check to see if we need to upgrade first
+			checkUpgrade();
 			STATE oldState = state;
 			state = STATE.OPENING;
 
@@ -283,8 +287,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 		} finally {
             if (sqLiteDatabase != null && state != STATE.INITIALIZING) {
                 sqLiteDatabase = null;
-                state = STATE.CLOSED;
             }
+			state = STATE.CLOSED;
 			mLock.unlock();
 		}
 	}
@@ -294,17 +298,17 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	 * yourself before other methods
 	 */
 	public void startTransaction() throws DBException {
-        // Check to see if we need to upgrade first
-        checkUpgrade();
-
 		openCount++;
 		open();
+		sqLiteDatabase.beginTransaction();
 	}
 
 	/**
 	 * End a set of transactions be decreasing the open count and closing the db if necessary
 	 */
 	public void endTransaction() {
+		sqLiteDatabase.setTransactionSuccessful();
+		sqLiteDatabase.endTransaction();
 		openCount--;
 		openCount = Math.max(0, openCount); // Make sure we don't go below 0
 		if (openCount == 0) {
@@ -318,7 +322,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	protected void createLocalDB() {
 		if (localDatabase == null) {
 			localDatabase = new Database(sqLiteDatabase);
-		} else if (localDatabase.getDatabase() == null && sqLiteDatabase != null){
+		} else {
 			localDatabase.setDatabase(sqLiteDatabase);
 		}
 	}
@@ -466,8 +470,12 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 						String having, String orderBy, String limit) throws DBException {
 		// Lock it!
 		mLock.lock();
+		boolean opening = false;
 		try {
-			open();
+			if (!isOpen()) {
+				open();
+				opening = true;
+			}
 			return sqLiteDatabase.query(distinct, table, columns,
 				selection, selectionArgs, groupBy,
 				having, orderBy, limit);
@@ -478,6 +486,9 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			Logger.error(this, e.getMessage());
 			throw new DBException("Problems executing query for database " + mainTableName, e);
 		} finally {
+			if (opening) {
+				close();
+			}
 			mLock.unlock();
 		}
 	}
@@ -521,8 +532,12 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 						String having, String orderBy, String limit, CancellationSignal cancellationSignal) throws DBException {
 		// Lock it!
 		mLock.lock();
+		boolean opening = false;
 		try {
-			open();
+			if (!isOpen()) {
+				open();
+				opening = true;
+			}
 			return sqLiteDatabase.query(distinct, table, columns,
 										selection, selectionArgs, groupBy,
 										having, orderBy, limit, cancellationSignal);
@@ -533,6 +548,9 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			Logger.error(this, e.getMessage());
 			throw new DBException("Problems executing query for database " + mainTableName, e);
 		} finally {
+			if (opening) {
+				close();
+			}
 			mLock.unlock();
 		}
 	}
@@ -571,8 +589,12 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 
 		// Lock it!
 		mLock.lock();
+		boolean opening = false;
 		try {
-			open();
+			if (!isOpen()) {
+				open();
+				opening = true;
+			}
 			return sqLiteDatabase.query(table, columns,
 										selection, selectionArgs, groupBy,
 										having, orderBy);
@@ -583,6 +605,9 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			Logger.error(this, e.getMessage());
 			throw new DBException("Problems executing query for database " + mainTableName, e);
 		} finally {
+			if (opening) {
+				close();
+			}
 			mLock.unlock();
 		}
 	}
@@ -623,8 +648,12 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 
 		// Lock it!
 		mLock.lock();
+		boolean opening = false;
 		try {
-			open();
+			if (!isOpen()) {
+				open();
+				opening = true;
+			}
 			return sqLiteDatabase.query(table, columns,
 										selection, selectionArgs, groupBy,
 										having, orderBy, limit);
@@ -635,6 +664,9 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			Logger.error(this, e.getMessage());
 			throw new DBException("Problems executing query for database " + mainTableName, e);
 		} finally {
+			if (opening) {
+				close();
+			}
 			mLock.unlock();
 		}
 	}
@@ -645,8 +677,12 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	public void execSQL(String sql) throws DBException {
 		// Lock it!
 		mLock.lock();
+		boolean opening = false;
 		try {
-			open();
+			if (!isOpen()) {
+				open();
+				opening = true;
+			}
 			sqLiteDatabase.execSQL(sql);
         } catch (IllegalArgumentException e) {
             Logger.error(this, e.getMessage());
@@ -655,6 +691,9 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			Logger.error(this, e.getMessage());
 			throw new DBException("Problems executing " + sql + " for database " + mainTableName, e);
 		} finally {
+			if (opening) {
+				close();
+			}
 			mLock.unlock();
 		}
 	}
@@ -667,8 +706,12 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	public Cursor rawQuery(String sql, String[] selectionArgs) throws DBException {
 		// Lock it!
 		mLock.lock();
+		boolean opening = false;
 		try {
-			open();
+			if (!isOpen()) {
+				open();
+				opening = true;
+			}
 			return sqLiteDatabase.rawQuery(sql, selectionArgs);
 		} catch (IllegalArgumentException e) {
             Logger.error(this, e.getMessage());
@@ -677,6 +720,9 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			Logger.error(this, e.getMessage());
 			throw new DBException("Problems executing " + sql + " for database " + mainTableName, e);
 		} finally {
+			if (opening) {
+				close();
+			}
 			mLock.unlock();
 		}
 	}
