@@ -40,8 +40,8 @@ public class DatabaseHelper {
      * @param id
      * @return table item
      */
-    public Class<? extends ReflectTableInterface> get(Class<? extends ReflectTableInterface> tableClass, int id) {
-        return (Class<? extends ReflectTableInterface>) DatabaseManager.getInstance().getItem(databaseName, tableClass, id);
+    public ReflectTableInterface get(Class<? extends ReflectTableInterface> tableClass, int id) {
+        return (ReflectTableInterface) DatabaseManager.getInstance().getItem(databaseName, tableClass, id);
     }
 
 	/**

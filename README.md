@@ -6,8 +6,13 @@ To start using the library add the following to your build.gradle file (not the 
 
 ```
 Gradle
-compile "com.mastertechsoftware.easysqllibrary:easysqllibrary:1.0.5"
+compile "com.mastertechsoftware.easysqllibrary:easysqllibrary:1.0.6"
 ```  
+
+### Initialization
+EasySQLLibrary requires an application context. To initialize make a call at least 1x to:
+DatabaseManager.getInstance(applicationContext);
+
 ### Data Models
 Data models are just POJOs (Plain Old Java Objects). They can subclass any object but must implement ReflectTableInterface. If you would like to subclass a default interface, use the DefaultReflectTable class. This class just provides the _id field. EasySQLLibrary will use reflection to pull out the field names for the database. Each POJO will be a table and each field will be a field in the table. You will make 1 create call for each database, passing in all the models you want for that database. This is usually done in the application.  
 
@@ -86,6 +91,8 @@ To delete the entire database (if you were upgrading and needed to build it agai
 ```
 databaseHelper.deleteDatabase();  
 ```
+### Handling multiple tables
+To handle multiple classes at once, use the DatabaseManager.
 
 ### Proguard
-EasySQLLibrary uses reflection so you will have to keep those classes in your proguard file
+EasySQLLibrary uses reflection so you will have to keep the model classes in your proguard file

@@ -140,17 +140,27 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	 * @throws DBException
 	 */
 	public void createDatabase() throws DBException {
+		// Lock it!
+		mLock.lock();
+		boolean opening = false;
 		try {
-			open();
+			if (!isOpen()) {
+				open();
+				opening = true;
+			}
 			sqLiteDatabase.beginTransaction();
 			sqLiteDatabase.setVersion(version);
 			sqLiteDatabase.setTransactionSuccessful();
 			sqLiteDatabase.endTransaction();
 			localDatabase.createDatabase();
-			close();
 		} catch (SQLiteException e) {
 			Logger.error(this, e.getMessage());
 			throw new DBException(e.getMessage(), e);
+		} finally {
+			if (opening) {
+				close();
+			}
+			mLock.unlock();
 		}
 	}
 
@@ -225,7 +235,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			return;
 		}
         if (sqLiteDatabase != null) {
-			Logger.error("open: DB already open");
+			Logger.error("open: DB already open. sqLiteDatabase not null");
             return;
         }
 		// Lock it!
@@ -333,16 +343,12 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
      */
     protected MetaDatabase getMetaDatabase() {
         if (metaDatabase == null || localDatabase == null) {
-            // Lock it!
-            mLock.lock();
             try {
-                startTransaction();
                 open();
             } catch (DBException e) {
                 Logger.error(this, "Problems opening database", e);
-            } finally {
-                endTransaction();
-                mLock.unlock();
+			} finally {
+				close();
             }
         }
         return metaDatabase;
@@ -737,13 +743,11 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
         getMetaDatabase();
         mLock.lock();
         try {
-            startTransaction();
             return metaDatabase.getMeta(version, databaseName);
         } catch (DBException e) {
             Logger.error(this, "Problems getting meta table entry ", e);
             return null;
         } finally {
-            endTransaction();
             mLock.unlock();
         }
 
@@ -909,13 +913,11 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 		// Lock it!
 		mLock.lock();
 		try {
-			startTransaction();
 			return table.getTable().getEntry(localDatabase, columnName, columnValue);
 		} catch (DBException e) {
 			Logger.error(this, "Problems getting entry for table " + table, e);
 			return null;
 		} finally {
-			endTransaction();
 			mLock.unlock();
 		}
 	}
@@ -989,13 +991,11 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 		// Lock it!
 		mLock.lock();
 		try {
-			startTransaction();
 			return table.getTable().getAllEntries(localDatabase);
 		} catch (DBException e) {
 			Logger.error(this, "Problems getting all entries for table " + table, e);
 			return null;
 		} finally {
-			endTransaction();
 			mLock.unlock();
 		}
 	}
@@ -1011,13 +1011,11 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
         // Lock it!
         mLock.lock();
         try {
-            startTransaction();
             return table.getAllEntries(localDatabase, cls, mapper);
         } catch (DBException e) {
             Logger.error(this, "Problems getting all entries for table " + table, e);
             return null;
         } finally {
-            endTransaction();
             mLock.unlock();
         }
     }
