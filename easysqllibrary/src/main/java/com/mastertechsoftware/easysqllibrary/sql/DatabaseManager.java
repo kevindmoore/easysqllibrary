@@ -88,7 +88,7 @@ public class DatabaseManager {
      * @param data
      * @return id of added item. -1 if there was an error
      */
-    public int addItem(String dbName, Class type, ReflectTableInterface data) {
+    public int addItem(String dbName, Class<? extends ReflectTableInterface> type, ReflectTableInterface data) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -104,7 +104,7 @@ public class DatabaseManager {
      * @param type
      * @param data
      */
-    public void updateItem(String dbName, Class type, ReflectTableInterface data) {
+    public void updateItem(String dbName, Class<? extends ReflectTableInterface> type, ReflectTableInterface data) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -122,7 +122,7 @@ public class DatabaseManager {
      * @param whereArgs
      * @return result
      */
-    public int updateEntryWhere(String dbName, Class type, ContentValues cv, String whereClause,
+    public int updateEntryWhere(String dbName, Class<? extends ReflectTableInterface> type, ContentValues cv, String whereClause,
                                 String[] whereArgs) {
 
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
@@ -140,7 +140,7 @@ public class DatabaseManager {
      * @param columnName
      * @param columnValue
      */
-    public void deleteItemWhere(String dbName, Class type, String columnName, String columnValue) {
+    public void deleteItemWhere(String dbName, Class<? extends ReflectTableInterface> type, String columnName, String columnValue) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -155,7 +155,7 @@ public class DatabaseManager {
 	 * @param type
 	 * @param id
 	 */
-    public void deleteItem(String dbName, Class type, int id) {
+    public void deleteItem(String dbName, Class<? extends ReflectTableInterface> type, int id) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -169,7 +169,7 @@ public class DatabaseManager {
      * @param dbName
      * @param type
      */
-    public void removeAllItems(String dbName, Class type) {
+    public void removeAllItems(String dbName, Class<? extends ReflectTableInterface> type) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -184,7 +184,7 @@ public class DatabaseManager {
      * @param type
      * @return List of items
      */
-    public List getAllItems(String dbName, Class type) {
+    public List<? extends ReflectTableInterface> getAllItems(String dbName, Class<? extends ReflectTableInterface> type) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -201,7 +201,7 @@ public class DatabaseManager {
      * @param columnValue
      * @return List of items
      */
-    public List getItemsWhere(String dbName, Class type, String columnName, String columnValue) {
+    public List getItemsWhere(String dbName, Class<? extends ReflectTableInterface> type, String columnName, String columnValue) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -217,7 +217,7 @@ public class DatabaseManager {
 	 * @param id
 	 * @return Object
 	 */
-	public Object getItem(String dbName, Class type, int id) {
+	public Object getItem(String dbName, Class<? extends ReflectTableInterface> type, int id) {
 		ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -249,7 +249,7 @@ public class DatabaseManager {
      * @return Cursor
      * @throws DBException
      */
-    public Cursor query(String dbName, Class type, boolean distinct, String table, String[] columns,
+    public Cursor query(String dbName, Class<? extends ReflectTableInterface> type, boolean distinct, String table, String[] columns,
                         String selection, String[] selectionArgs, String groupBy,
                         String having, String orderBy, String limit) throws DBException {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
@@ -277,7 +277,7 @@ public class DatabaseManager {
 	 * @return Cursor
 	 * @throws DBException
 	 */
-    public Cursor query(String dbName, Class type, boolean distinct, String table, String[] columns,
+    public Cursor query(String dbName, Class<? extends ReflectTableInterface> type, boolean distinct, String table, String[] columns,
                         String selection, String[] selectionArgs, String groupBy,
                         String having, String orderBy, String limit, CancellationSignal cancellationSignal) throws DBException {
 
@@ -303,7 +303,7 @@ public class DatabaseManager {
 	 * @return Cursor
 	 * @throws DBException
 	 */
-    public Cursor query(String dbName, Class type, String table, String[] columns, String selection,
+    public Cursor query(String dbName, Class<? extends ReflectTableInterface> type, String table, String[] columns, String selection,
                         String[] selectionArgs, String groupBy, String having,
                         String orderBy)  throws DBException {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
@@ -329,7 +329,7 @@ public class DatabaseManager {
 	 * @return Cursor
 	 * @throws DBException
 	 */
-    public Cursor query(String dbName, Class type, String table, String[] columns, String selection,
+    public Cursor query(String dbName, Class<? extends ReflectTableInterface> type, String table, String[] columns, String selection,
                         String[] selectionArgs, String groupBy, String having,
                         String orderBy, String limit)  throws DBException {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
@@ -343,7 +343,7 @@ public class DatabaseManager {
     /**
      * Execute sql statement. Be careful.
      */
-    public void execSQL(String dbName, Class type, String sql) throws DBException {
+    public void execSQL(String dbName, Class<? extends ReflectTableInterface> type, String sql) throws DBException {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -374,7 +374,7 @@ public class DatabaseManager {
 	 * @param columnValue
 	 * @return
 	 */
-	public Object getItemWhere(String dbName, Class type, String columnName, String columnValue) {
+	public Object getItemWhere(String dbName, Class<? extends ReflectTableInterface> type, String columnName, String columnValue) {
 		ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);

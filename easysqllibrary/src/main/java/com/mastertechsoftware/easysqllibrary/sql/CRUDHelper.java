@@ -431,7 +431,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 	 * @param item
 	 * @return Object
 	 */
-	public Object getItem(long id, T item) {
+	public T getItem(long id, T item) {
 		// Lock it!
 		mLock.lock();
 		try {

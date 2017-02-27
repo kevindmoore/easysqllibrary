@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Table to hold web cookie Information.
@@ -51,7 +52,7 @@ public class CookieTable extends AbstractTable<DatabaseCookie> {
     private static final int COOKIE_VERSION_COLUMN = 9;
     private static final int LAST_ACCESSED_COLUMN = 10;
     private static final int version = 1;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yy");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yy", Locale.US);
 	private CookieMapper mapper;
 
     public CookieTable() {

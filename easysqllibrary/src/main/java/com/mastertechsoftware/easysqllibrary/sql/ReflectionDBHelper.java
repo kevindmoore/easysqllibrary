@@ -42,7 +42,6 @@ public class ReflectionDBHelper {
  		for (Class<? extends ReflectTableInterface> reflectClass : types) {
 			addTable(reflectClass);
 		}
-
 	}
 
 	/**
@@ -146,7 +145,7 @@ public class ReflectionDBHelper {
 	 * @param data
 	 * @return new position
 	 */
-    public int addItem(Class type, ReflectTableInterface data) {
+    public int addItem(Class<? extends ReflectTableInterface> type, ReflectTableInterface data) {
         Integer position = classMapper.get(type);
         if (position == null) {
             Logger.error("Type " + type.getName() + " Not found");
@@ -161,7 +160,7 @@ public class ReflectionDBHelper {
 	 * @param type
 	 * @param data
 	 */
-    public void updateItem(Class type, ReflectTableInterface data) {
+    public void updateItem(Class<? extends ReflectTableInterface> type, ReflectTableInterface data) {
         Integer position = classMapper.get(type);
         if (position == null) {
             Logger.error("Type " + type.getName() + " Not found");
@@ -178,7 +177,7 @@ public class ReflectionDBHelper {
      * @param whereArgs
      * @return result
      */
-    public int updateEntryWhere(Class type, ContentValues cv, String whereClause,
+    public int updateEntryWhere(Class<? extends ReflectTableInterface> type, ContentValues cv, String whereClause,
                                 String[] whereArgs) {
         Integer position = classMapper.get(type);
         if (position == null) {
@@ -194,7 +193,7 @@ public class ReflectionDBHelper {
 	 * @param type
 	 * @param id
 	 */
-    public void deleteItem(Class type, int id) {
+    public void deleteItem(Class<? extends ReflectTableInterface> type, int id) {
         Integer position = classMapper.get(type);
         if (position == null) {
             Logger.error("Type " + type.getName() + " Not found");
@@ -210,7 +209,7 @@ public class ReflectionDBHelper {
 	 * @param columnName
 	 * @param columnValue
 	 */
-    public void deleteItemWhere(Class type, String columnName, String columnValue) {
+    public void deleteItemWhere(Class<? extends ReflectTableInterface> type, String columnName, String columnValue) {
         Integer position = classMapper.get(type);
         if (position == null) {
             Logger.error("Type " + type.getName() + " Not found");
@@ -224,7 +223,7 @@ public class ReflectionDBHelper {
 	 * Remove all items for this class
 	 * @param type
 	 */
-    public void removeAllItems(Class type) {
+    public void removeAllItems(Class<? extends ReflectTableInterface> type) {
         Integer position = classMapper.get(type);
         if (position == null) {
             Logger.error("Type " + type.getName() + " Not found");
@@ -239,7 +238,7 @@ public class ReflectionDBHelper {
 	 * @param type
 	 * @return
 	 */
-    public List getAllItems(Class type) {
+    public List<? extends ReflectTableInterface> getAllItems(Class<? extends ReflectTableInterface> type) {
         Integer position = classMapper.get(type);
         if (position == null) {
             Logger.error("Type " + type.getName() + " Not found");
@@ -256,7 +255,7 @@ public class ReflectionDBHelper {
 	 * @param columnValue
 	 * @return
 	 */
-    public List getItemsWhere(Class type, String columnName, String columnValue) {
+    public List<? extends ReflectTableInterface> getItemsWhere(Class<? extends ReflectTableInterface> type, String columnName, String columnValue) {
         Integer position = classMapper.get(type);
         if (position == null) {
             Logger.error("Type " + type.getName() + " Not found");
@@ -281,7 +280,7 @@ public class ReflectionDBHelper {
 	 * @return
 	 * @throws DBException
 	 */
-    public Cursor query(Class type, boolean distinct, String table, String[] columns,
+    public Cursor query(Class<? extends ReflectTableInterface> type, boolean distinct, String table, String[] columns,
                         String selection, String[] selectionArgs, String groupBy,
                         String having, String orderBy, String limit) throws DBException {
         Integer position = classMapper.get(type);
@@ -309,7 +308,7 @@ public class ReflectionDBHelper {
 	 * @return
 	 * @throws DBException
 	 */
-    public Cursor query(Class type, boolean distinct, String table, String[] columns,
+    public Cursor query(Class<? extends ReflectTableInterface> type, boolean distinct, String table, String[] columns,
                         String selection, String[] selectionArgs, String groupBy,
                         String having, String orderBy, String limit, CancellationSignal cancellationSignal) throws DBException {
 
@@ -337,7 +336,7 @@ public class ReflectionDBHelper {
 	 * @return
 	 * @throws DBException
 	 */
-    public Cursor query(Class type, String table, String[] columns, String selection,
+    public Cursor query(Class<? extends ReflectTableInterface> type, String table, String[] columns, String selection,
                         String[] selectionArgs, String groupBy, String having,
                         String orderBy)  throws DBException {
         Integer position = classMapper.get(type);
@@ -365,7 +364,7 @@ public class ReflectionDBHelper {
 	 * @return
 	 * @throws DBException
 	 */
-    public Cursor query(Class type, String table, String[] columns, String selection,
+    public Cursor query(Class<? extends ReflectTableInterface> type, String table, String[] columns, String selection,
                         String[] selectionArgs, String groupBy, String having,
                         String orderBy, String limit)  throws DBException {
         Integer position = classMapper.get(type);
@@ -382,7 +381,7 @@ public class ReflectionDBHelper {
     /**
      * Execute sql statement. Be careful.
      */
-    public void execSQL(Class type, String sql) throws DBException {
+    public void execSQL(Class<? extends ReflectTableInterface> type, String sql) throws DBException {
         Integer position = classMapper.get(type);
         if (position == null) {
             Logger.error("Type " + type.getName() + " Not found");
@@ -399,7 +398,7 @@ public class ReflectionDBHelper {
 	 * @param newItem
 	 * @return
 	 */
-    public Object getItem(Class type, long id, ReflectTableInterface newItem) {
+    public ReflectTableInterface getItem(Class<? extends ReflectTableInterface> type, long id, ReflectTableInterface newItem) {
         Integer position = classMapper.get(type);
         if (position == null) {
 			Logger.error("Type " + type.getName() + " Not found");
@@ -416,7 +415,7 @@ public class ReflectionDBHelper {
 	 * @param columnValue
 	 * @return
 	 */
-	public Object getItemWhere(Class type, String columnName, String columnValue) {
+	public ReflectTableInterface getItemWhere(Class<? extends ReflectTableInterface> type, String columnName, String columnValue) {
 		Integer position = classMapper.get(type);
 		if (position == null) {
 			Logger.error("Type " + type.getName() + " Not found");
