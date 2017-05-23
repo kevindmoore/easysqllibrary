@@ -115,6 +115,27 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 	}
 
 	/**
+	 * Get all items where the given list of column/value strings is given in the ClassField list
+	 * @param classItem
+	 * @param fields
+	 * @return List of items
+	 */
+	public List<? extends T> getItemsWhere(Class<? extends T> classItem, List<ColumnValue> fields) {
+		// Lock it!
+		mLock.lock();
+		try {
+			databaseHelper.startTransaction();
+			return table.getAllEntriesWhere(database, (Class<T>) classItem, fields, table.getMapper());
+		} catch (DBException e) {
+			Logger.error(this, "Problems starting transaction " + e.getMessage());
+		} finally {
+			databaseHelper.endTransaction();
+			mLock.unlock();
+		}
+		return null;
+	}
+
+	/**
 	 * Return a specific item that matches the given column and value
 	 * @param classItem
 	 * @param columnName
@@ -329,7 +350,9 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 		try {
 			databaseHelper.startTransaction();
 			int deleted = table.deleteEntryWhere(database, Table.ID, String.valueOf(id));
-			Logger.debug("Deleted " + deleted + " items ");
+			if (deleted < 1) {
+				Logger.error("Could not delete item with id " + id);
+			}
 		} catch (DBException e) {
 			Logger.error(this, "Problems starting transaction " + e.getMessage() );
 		} finally {

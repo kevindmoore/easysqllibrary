@@ -1,5 +1,6 @@
 package com.mastertechsoftware.easysqllibrary.sql;
 
+import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeStrategy;
 import com.mastertechsoftware.logging.Logger;
 
 import android.content.ContentValues;
@@ -61,6 +62,14 @@ public class ReflectionDBHelper {
 	 */
 	public int getCurrentVersion() {
 		return databaseHelper.getDBVersion();
+	}
+
+	/**
+	 * Set the upgrade strategy
+	 * @param upgradeStrategy
+	 */
+	public void setUpgradeStrategy(UpgradeStrategy upgradeStrategy) {
+		databaseHelper.setUpgradeStrategy(upgradeStrategy);
 	}
 
 	/**
@@ -140,6 +149,34 @@ public class ReflectionDBHelper {
     }
 
 	/**
+	 * Delete the entry in the sequence table for the given table
+	 * Done usually after deleting the table
+	 * @param table
+	 * @throws DBException
+	 */
+	public void deletePrimaryKey(String table) {
+		try {
+			databaseHelper.deletePrimaryKey(table);
+		} catch (DBException e) {
+			Logger.error(this, "Problems deleting primary key for table " + table, e);
+		}
+	}
+
+	/**
+	 * Set the primary key to the given value for the given table
+	 * @param table
+	 * @param startingId
+	 * @throws DBException
+	 */
+	public void setPrimaryKey(String table, int startingId) {
+		try {
+			databaseHelper.setPrimaryKey(table, startingId);
+		} catch (DBException e) {
+			Logger.error(this, "Problems setting primary key for table " + table, e);
+		}
+	}
+
+	/**
 	 * Add a single item
 	 * @param type
 	 * @param data
@@ -188,6 +225,7 @@ public class ReflectionDBHelper {
         return crudHelper.updateEntryWhere(cv, whereClause, whereArgs);
     }
 
+
 	/**
 	 * Delete a single item
 	 * @param type
@@ -223,7 +261,7 @@ public class ReflectionDBHelper {
 	 * Remove all items for this class
 	 * @param type
 	 */
-    public void removeAllItems(Class<? extends ReflectTableInterface> type) {
+    public void deleteAllItems(Class<? extends ReflectTableInterface> type) {
         Integer position = classMapper.get(type);
         if (position == null) {
             Logger.error("Type " + type.getName() + " Not found");
@@ -245,7 +283,7 @@ public class ReflectionDBHelper {
             return null;
         }
         CRUDHelper<ReflectTableInterface> crudHelper = getCrudHelper(position);
-        return (List) crudHelper.getItems(type);
+        return crudHelper.getItems(type);
     }
 
 	/**
@@ -263,6 +301,22 @@ public class ReflectionDBHelper {
         }
         CRUDHelper<ReflectTableInterface> crudHelper = getCrudHelper(position);
         return crudHelper.getItemsWhere(type, columnName, columnValue);
+    }
+
+	/**
+	 * Get all items where the given list of column/value strings is given in the ClassField list
+	 * @param type
+	 * @param fields
+	 * @return
+	 */
+    public List<? extends ReflectTableInterface> getItemsWhere(Class<? extends ReflectTableInterface> type, List<ColumnValue> fields) {
+        Integer position = classMapper.get(type);
+        if (position == null) {
+            Logger.error("Type " + type.getName() + " Not found");
+            return null;
+        }
+        CRUDHelper<ReflectTableInterface> crudHelper = getCrudHelper(position);
+        return crudHelper.getItemsWhere(type, fields);
     }
 
 	/**
@@ -396,7 +450,7 @@ public class ReflectionDBHelper {
 	 * @param type
 	 * @param id
 	 * @param newItem
-	 * @return
+	 * @return ReflectTableInterface
 	 */
     public ReflectTableInterface getItem(Class<? extends ReflectTableInterface> type, long id, ReflectTableInterface newItem) {
         Integer position = classMapper.get(type);
@@ -413,7 +467,7 @@ public class ReflectionDBHelper {
 	 * @param type
 	 * @param columnName
 	 * @param columnValue
-	 * @return
+	 * @return ReflectTableInterface
 	 */
 	public ReflectTableInterface getItemWhere(Class<? extends ReflectTableInterface> type, String columnName, String columnValue) {
 		Integer position = classMapper.get(type);
@@ -423,7 +477,7 @@ public class ReflectionDBHelper {
 		}
 		CRUDHelper<ReflectTableInterface> crudHelper = getCrudHelper(position);
 		try {
-			return crudHelper.getItemWhere((ReflectTableInterface) type.newInstance(), columnName, columnValue);
+			return crudHelper.getItemWhere(type.newInstance(), columnName, columnValue);
 		} catch (InstantiationException e) {
 			Logger.error("Problems Creating object of type " + type.getName(), e);
 		} catch (IllegalAccessException e) {
@@ -443,7 +497,7 @@ public class ReflectionDBHelper {
 	/**
 	 * Get the table associated with this class
 	 * @param type
-	 * @return
+	 * @return Table
 	 */
 	public Table getTable(Class<? extends ReflectTableInterface> type) {
 		Integer position = classMapper.get(type);

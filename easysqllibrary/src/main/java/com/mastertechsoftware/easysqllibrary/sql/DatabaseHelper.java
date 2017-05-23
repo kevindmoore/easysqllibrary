@@ -104,7 +104,7 @@ public class DatabaseHelper {
      * @param tableClass
      */
     public void removeAll(Class<? extends ReflectTableInterface> tableClass) {
-        DatabaseManager.getInstance().removeAllItems(databaseName, tableClass);
+        DatabaseManager.getInstance().deleteAllItems(databaseName, tableClass);
     }
 
 	/**

@@ -254,7 +254,7 @@ public class DBBuilder {
 
     }
 
-    private static void printCursor(Context context, Cursor cursor) {
+    public static void printCursor(Context context, Cursor cursor) {
         int count = cursor.getCount();
         Logger.debug(context, "Found " + count + " items");
         String[] columnNames = cursor.getColumnNames();

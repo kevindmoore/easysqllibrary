@@ -548,6 +548,69 @@ public class AbstractTable<T> extends Table<T> {
     }
 
     /**
+     * Get all entries with multiple where values
+     * @param database
+     * @param cls
+     * @param columnValues
+     * @param mapper
+     * @return
+     * @throws DBException
+     */
+    public List<T> getAllEntriesWhere(Database database, Class<T> cls, List<ColumnValue> columnValues, DataMapper<T> mapper)
+		throws DBException {
+        Cursor cursor = null;
+        List<T> dataList = new ArrayList<T>();
+        StringBuilder columnBuilder = new StringBuilder();
+        String[] values = new String[columnValues.size()];
+        int count=0;
+        for (ColumnValue field : columnValues) {
+            columnBuilder.append(field.fieldName).append("=?");
+            values[count++] = field.value;
+            if (count < columnValues.size()) {
+                columnBuilder.append(" AND ");
+            }
+        }
+        try {
+			cursor = database.getDatabase().query(getTableName(), getProjection(), columnBuilder.toString(),
+                    values, null,
+                    null, null);
+            if (cursor == null) {
+                return dataList;
+            }
+            if (!cursor.moveToFirst()) {
+                cursor.close();
+                return dataList;
+            }
+            do  {
+                int columnPosition = 0;
+                T data = cls.newInstance();
+                for (Column column : columns) {
+                    if (column.column_position == 0) {
+                        column.column_position = columnPosition;
+                    }
+                    mapper.read(cursor, column, data);
+                    columnPosition++;
+                }
+                dataList.add(data);
+            } while (cursor.moveToNext());
+        } catch (SQLiteException e) {
+            Logger.error(this, e.getMessage());
+			throw new DBException(e.getMessage(), e);
+        } catch (InstantiationException e) {
+            Logger.error(this, e.getMessage());
+			throw new DBException(e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            Logger.error(this, e.getMessage());
+			throw new DBException(e.getMessage(), e);
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+        }
+        return dataList;
+    }
+
+    /**
      * Get all entries with the given where clause and args
      * @param database
      * @param whereClause

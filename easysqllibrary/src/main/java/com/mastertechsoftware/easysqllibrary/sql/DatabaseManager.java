@@ -1,5 +1,6 @@
 package com.mastertechsoftware.easysqllibrary.sql;
 
+import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeStrategy;
 import com.mastertechsoftware.logging.Logger;
 
 import android.content.ContentValues;
@@ -17,8 +18,9 @@ public class DatabaseManager {
     private static DatabaseManager instance;
     protected Map<String, ReflectionDBHelper> databases = new HashMap<String, ReflectionDBHelper>();
     protected Context context;
+	private ReflectionDBHelper reflectionDBHelper;
 
-    /**
+	/**
      * Create new database manager with the given context (usually application)
      * @param context
      * @return DatabaseManager
@@ -49,9 +51,17 @@ public class DatabaseManager {
      * @param types
      */
     public void addDatabase(String dbName, String mainTableName, Class<? extends ReflectTableInterface>... types) {
-        ReflectionDBHelper reflectionDBHelper = new ReflectionDBHelper(context, dbName, mainTableName, types);
+		reflectionDBHelper = new ReflectionDBHelper(context, dbName, mainTableName, types);
         databases.put(dbName, reflectionDBHelper);
     }
+
+	/**
+	 * Set the upgrade strategy
+	 * @param upgradeStrategy
+	 */
+	public void setUpgradeStrategy(UpgradeStrategy upgradeStrategy) {
+		reflectionDBHelper.setUpgradeStrategy(upgradeStrategy);
+	}
 
 	/**
 	 * Add a database, specifying the version number
@@ -61,7 +71,7 @@ public class DatabaseManager {
 	 * @param types
 	 */
     public void addDatabase(String dbName, String mainTableName, int version, Class<? extends ReflectTableInterface>... types) {
-        ReflectionDBHelper reflectionDBHelper = new ReflectionDBHelper(context, dbName, mainTableName, version, types);
+        reflectionDBHelper = new ReflectionDBHelper(context, dbName, mainTableName, version, types);
         databases.put(dbName, reflectionDBHelper);
     }
 
@@ -169,13 +179,13 @@ public class DatabaseManager {
      * @param dbName
      * @param type
      */
-    public void removeAllItems(String dbName, Class<? extends ReflectTableInterface> type) {
+    public void deleteAllItems(String dbName, Class<? extends ReflectTableInterface> type) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
 			return;
 		}
-        reflectionDBHelper.removeAllItems(type);
+        reflectionDBHelper.deleteAllItems(type);
     }
 
     /**
@@ -208,6 +218,22 @@ public class DatabaseManager {
 			return null;
 		}
         return reflectionDBHelper.getItemsWhere(type, columnName, columnValue);
+    }
+
+	/**
+	 * Get all entries with multiple where values
+	 * @param dbName
+	 * @param type
+	 * @param fields
+	 * @return
+	 */
+    public List getItemsWhere(String dbName, Class<? extends ReflectTableInterface> type, List<ColumnValue> fields) {
+        ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
+		if (reflectionDBHelper == null) {
+			Logger.error("Could not find helper for database " + dbName);
+			return null;
+		}
+        return reflectionDBHelper.getItemsWhere(type, fields);
     }
 
 	/**
@@ -365,6 +391,39 @@ public class DatabaseManager {
         reflectionDBHelper.deleteDatabase();
         databases.remove(dbName);
     }
+
+
+	/**
+	 * Delete the entry in the sequence table for the given table
+	 * Done usually after deleting the table
+	 * @param dbName
+	 * @param table
+	 * @throws DBException
+	 */
+	public void deletePrimaryKey(String dbName, String table) {
+		ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
+		if (reflectionDBHelper == null) {
+			Logger.error("Could not find helper for database " + dbName);
+			return;
+		}
+		reflectionDBHelper.deletePrimaryKey(table);
+	}
+
+	/**
+	 * Set the primary key to the given value for the given table
+	 * @param dbName
+	 * @param table
+	 * @param startingId
+	 * @throws DBException
+	 */
+	public void setPrimaryKey(String dbName, String table, int startingId){
+		ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
+		if (reflectionDBHelper == null) {
+			Logger.error("Could not find helper for database " + dbName);
+			return;
+		}
+		reflectionDBHelper.setPrimaryKey(table, startingId);
+	}
 
 	/**
 	 * Get a specific item that has the given column name and value

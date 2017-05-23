@@ -4,10 +4,12 @@ import com.mastertechsoftware.easysqllibrary.sql.AbstractDataMapper;
 import com.mastertechsoftware.easysqllibrary.sql.AbstractTable;
 import com.mastertechsoftware.easysqllibrary.sql.ClassField;
 import com.mastertechsoftware.easysqllibrary.sql.Column;
+import com.mastertechsoftware.easysqllibrary.sql.Database;
 import com.mastertechsoftware.logging.Logger;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +47,34 @@ public class UpgradeTable extends AbstractTable<UpgradeHolder> {
 
     public void addField(ClassField classField) {
         fields.add(classField);
+        addColumn(new Column(classField.getFieldName(), classField.getType()));
     }
 
+    /**
+     * Insert entries from the allEntries array
+     * @param database
+     */
+    public void insertEntries(Database database) {
+        if (allEntries == null || allEntries.size() == 0) {
+            return;
+        }
+        ContentValues cv = new ContentValues();
+        for (UpgradeHolder allEntry : allEntries) {
+            for (int i = 0; i < allEntry.fields.size(); i++) {
+                final ClassField field = allEntry.getField(i);
+                cv.put(field.getFieldName(), field.getValue());
+            }
+            try {
+                final long row = database.getDatabase().insert(getTableName(), null, cv);
+                if (row < 0) {
+                    Logger.error(this, "Could not insert row for " + getTableName() + " values of " + cv );
+                }
+            } catch (SQLiteException e) {
+                Logger.error(this, e.getMessage());
+            }
+            cv.clear();
+        }
+    }
 
     public Mapper getMapper() {
         return mapper;

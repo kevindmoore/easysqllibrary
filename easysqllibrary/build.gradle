@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-def currentVersion = "1.0.8"
+def currentVersion = "1.0.9"
 
 android {
     compileSdkVersion androidCompileSdkVersion
@@ -11,7 +11,7 @@ android {
     defaultConfig {
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
-        versionCode 8
+        versionCode 9
         versionName currentVersion
     }
     buildTypes {
@@ -91,6 +91,8 @@ install {
     }
 }
 
+//install.dependsOn artifacts
+
 group = 'com.mastertechsoftware.easysqllibrary'
 version = currentVersion
 
@@ -109,3 +111,4 @@ bintray {
     }
     configurations = ['archives']
 }
+

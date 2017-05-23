@@ -200,7 +200,7 @@ public class ReflectTable<T> extends AbstractTable<T> {
                     String[] subWhereArgs = new String[1];
                     subWhereArgs[0] = String.valueOf(((ReflectTableInterface) fieldData).getId());
                     try {
-                        database.getDatabase().delete(subTable.getTableName(), "_id=?", subWhereArgs);
+						database.getDatabase().delete(subTable.getTableName(), "_id=?", subWhereArgs);
                     } catch (SQLiteException e) {
                         Logger.error(this, e.getMessage());
                     }
