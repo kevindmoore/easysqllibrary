@@ -43,6 +43,7 @@ public class ReflectionDBHelper {
  		for (Class<? extends ReflectTableInterface> reflectClass : types) {
 			addTable(reflectClass);
 		}
+//		checkAndCreateTables();
 	}
 
 	/**
@@ -97,6 +98,22 @@ public class ReflectionDBHelper {
             Logger.error(this, "Problems creating table", e);
         }
     }
+
+	/**
+	 * Check to see if all tables exist and create them if they don't
+	 */
+	private void checkAndCreateTables() {
+		try {
+			final List<Table> tables = database.getTables();
+			for (Table table : tables) {
+				if (!databaseHelper.tableExists(table.tableName)) {
+					databaseHelper.createTable(table);
+				}
+			}
+		} catch (DBException e) {
+			Logger.error(this, "Problems creating table", e);
+		}
+	}
 
 	/**
 	 * Return the Database object

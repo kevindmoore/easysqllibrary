@@ -50,9 +50,8 @@ public class DatabaseManager {
      * @param mainTableName
      * @param types
      */
-    public void addDatabase(String dbName, String mainTableName, Class<? extends ReflectTableInterface>... types) {
-		reflectionDBHelper = new ReflectionDBHelper(context, dbName, mainTableName, types);
-        databases.put(dbName, reflectionDBHelper);
+    public void addDatabase(String dbName, String mainTableName, Class<? extends ReflectTableInterface>... types) throws DBException {
+        addDatabase(dbName, mainTableName, 1, types);
     }
 
 	/**
@@ -70,10 +69,11 @@ public class DatabaseManager {
 	 * @param version
 	 * @param types
 	 */
-    public void addDatabase(String dbName, String mainTableName, int version, Class<? extends ReflectTableInterface>... types) {
+    public void addDatabase(String dbName, String mainTableName, int version, Class<? extends ReflectTableInterface>... types) throws DBException {
         reflectionDBHelper = new ReflectionDBHelper(context, dbName, mainTableName, version, types);
         databases.put(dbName, reflectionDBHelper);
-    }
+		createDatabase(dbName);
+	}
 
 	/**
 	 * After deleting database, readd the database

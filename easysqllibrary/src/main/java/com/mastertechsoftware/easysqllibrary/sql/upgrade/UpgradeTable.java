@@ -119,6 +119,9 @@ public class UpgradeTable extends AbstractTable<UpgradeHolder> {
                 case LONG:
                     cv.put(column.getName(), Long.valueOf(holderField.getValue()));
                     break;
+                case TIMESTAMP:
+                    cv.put(column.getName(), Long.valueOf(holderField.getValue()));
+                    break;
                 case DOUBLE:
                     cv.put(column.getName(), Double.valueOf(holderField.getValue()));
                     break;

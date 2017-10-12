@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 /**
  * Table that is built by using reflection on the object
@@ -21,7 +22,7 @@ public class ReflectTable<T> extends AbstractTable<T> {
 	public ReflectTable(T type, Database database) {
         this.type = type;
         this.database = database;
-		mapper = new Mapper();
+		mapper = new Mapper<>();
         this.mapper.setDatabase(database);
 		String tableName = type.getClass().getSimpleName().toLowerCase();
 		setTableName(tableName);
@@ -48,6 +49,8 @@ public class ReflectTable<T> extends AbstractTable<T> {
                 column_type = Column.COLUMN_TYPE.DOUBLE;
             } else if (fieldType == Number.class) {
                 column_type = Column.COLUMN_TYPE.INTEGER;
+            } else if (fieldType == Date.class) {
+                column_type = Column.COLUMN_TYPE.TIMESTAMP;
             } else if (fieldType == String.class || fieldType == Character.class) {
                 column_type = Column.COLUMN_TYPE.TEXT;
             } else if (fieldType == Object.class) {
@@ -294,6 +297,13 @@ public class ReflectTable<T> extends AbstractTable<T> {
 						Logger.error(this, "Problems mapping column " + column.getName(), e);
 					}
 					break;
+				case TIMESTAMP:
+					try {
+						cv.put(column.getName(), (Long)field.get(type));
+					} catch (IllegalAccessException e) {
+						Logger.error(this, "Problems mapping column " + column.getName(), e);
+					}
+					break;
 				case DOUBLE:
 					try {
 						cv.put(column.getName(), (Double)field.get(type));
@@ -384,6 +394,13 @@ public class ReflectTable<T> extends AbstractTable<T> {
 						Logger.error(this, "Problems mapping column " + column.getName(), e);
 					}
 					break;
+				case TIMESTAMP:
+					try {
+						field.set(type, cursor.getLong(columnIndex));
+					} catch (IllegalAccessException e) {
+						Logger.error(this, "Problems mapping column " + column.getName(), e);
+					}
+					break;
 				case DOUBLE:
 					try {
 						field.set(type, cursor.getDouble(columnIndex));
@@ -405,4 +422,10 @@ public class ReflectTable<T> extends AbstractTable<T> {
         }
 	}
 
+	@Override
+	public String toString() {
+		return "ReflectTable{" +
+				", type=" + type.getClass().getSimpleName().toLowerCase() +
+				"}\n" + super.toString();
+	}
 }

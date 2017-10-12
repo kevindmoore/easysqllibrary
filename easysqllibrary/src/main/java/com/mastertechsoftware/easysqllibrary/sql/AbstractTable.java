@@ -85,7 +85,7 @@ public class AbstractTable<T> extends Table<T> {
         try {
             id = (int) database.getDatabase().insert(getTableName(), getIdField(), data);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         }
         return id;
@@ -103,7 +103,7 @@ public class AbstractTable<T> extends Table<T> {
         try {
             return database.getDatabase().delete(getTableName(), getIdField() + "=?", whereArgs);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         }
     }
@@ -119,7 +119,7 @@ public class AbstractTable<T> extends Table<T> {
         try {
             return database.getDatabase().delete(getTableName(), whereClause, whereArgs);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         }
     }
@@ -136,7 +136,7 @@ public class AbstractTable<T> extends Table<T> {
         try {
             return database.getDatabase().delete(getTableName(), columnName + "=?" , whereArgs);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         }
     }
@@ -150,7 +150,7 @@ public class AbstractTable<T> extends Table<T> {
         try {
             database.getDatabase().delete(getTableName(), null, null);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         }
     }
@@ -196,7 +196,7 @@ public class AbstractTable<T> extends Table<T> {
             }
             return data;
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         } finally {
             if (cursor != null) {
@@ -236,7 +236,7 @@ public class AbstractTable<T> extends Table<T> {
             }
             return data;
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         } finally {
             if (cursor != null) {
@@ -277,7 +277,7 @@ public class AbstractTable<T> extends Table<T> {
             }
             return data;
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         } finally {
             if (cursor != null) {
@@ -301,7 +301,7 @@ public class AbstractTable<T> extends Table<T> {
             result = database.getDatabase().query(getTableName(), getProjection(), getIdField() + "=?",
                     params, null, null, null);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         }
         return result;
@@ -322,7 +322,7 @@ public class AbstractTable<T> extends Table<T> {
             result = database.getDatabase().query(getTableName(), getProjection(), columnName + "=?",
                     params, null, null, null);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
 	    }
         return result;
@@ -365,7 +365,7 @@ public class AbstractTable<T> extends Table<T> {
             String[] whereArgs = {String.valueOf(key)};
             return database.getDatabase().update(getTableName(), data, getIdField() + "=?", whereArgs);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         }
     }
@@ -392,7 +392,7 @@ public class AbstractTable<T> extends Table<T> {
             }
             return database.getDatabase().update(getTableName(), cv, getIdField() + "=?", whereArgs);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         }
     }
@@ -420,7 +420,7 @@ public class AbstractTable<T> extends Table<T> {
             }
             return database.getDatabase().update(getTableName(), cv, columnName + "=?", whereArgs);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         }
     }
@@ -439,7 +439,7 @@ public class AbstractTable<T> extends Table<T> {
         try {
             return database.getDatabase().update(getTableName(), cv, whereClause, whereArgs);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
 	    }
     }
@@ -476,16 +476,10 @@ public class AbstractTable<T> extends Table<T> {
                 }
                 dataList.add(data);
             } while (cursor.moveToNext());
-        } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+        } catch (SQLiteException | IllegalAccessException | InstantiationException e) {
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
-        } catch (InstantiationException e) {
-            Logger.error(this, e.getMessage());
-			throw new DBException(e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            Logger.error(this, e.getMessage());
-			throw new DBException(e.getMessage(), e);
-		} finally {
+        } finally {
 			if (cursor != null) {
 				cursor.close();
 			}
@@ -530,16 +524,10 @@ public class AbstractTable<T> extends Table<T> {
                 }
                 dataList.add(data);
             } while (cursor.moveToNext());
-        } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+        } catch (SQLiteException | InstantiationException | IllegalAccessException e) {
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
-        } catch (InstantiationException e) {
-            Logger.error(this, e.getMessage());
-			throw new DBException(e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            Logger.error(this, e.getMessage());
-			throw new DBException(e.getMessage(), e);
-		} finally {
+        } finally {
 			if (cursor != null) {
 				cursor.close();
 			}
@@ -593,16 +581,10 @@ public class AbstractTable<T> extends Table<T> {
                 }
                 dataList.add(data);
             } while (cursor.moveToNext());
-        } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+        } catch (SQLiteException | InstantiationException | IllegalAccessException e) {
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
-        } catch (InstantiationException e) {
-            Logger.error(this, e.getMessage());
-			throw new DBException(e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            Logger.error(this, e.getMessage());
-			throw new DBException(e.getMessage(), e);
-		} finally {
+        } finally {
 			if (cursor != null) {
 				cursor.close();
 			}
@@ -646,14 +628,8 @@ public class AbstractTable<T> extends Table<T> {
                 }
                 dataList.add(data);
             } while (cursor.moveToNext());
-        } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
-			throw new DBException(e.getMessage(), e);
-        } catch (InstantiationException e) {
-            Logger.error(this, e.getMessage());
-			throw new DBException(e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            Logger.error(this, e.getMessage());
+        } catch (SQLiteException | InstantiationException | IllegalAccessException e) {
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         } finally {
             if (cursor != null) {
@@ -675,7 +651,7 @@ public class AbstractTable<T> extends Table<T> {
             cursor = database.getDatabase().query(getTableName(), getProjection(), null, null, null,
                     null, null);
         } catch (SQLiteException e) {
-            Logger.error(this, e.getMessage());
+            Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
         }
         if (!cursor.moveToFirst()) {
@@ -693,15 +669,5 @@ public class AbstractTable<T> extends Table<T> {
      */
     public List<T> getAllEntries(Database database, Class<T> cls) {
         return null;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Table: " + getTableName() + "\n");
-        for (Column column : columns) {
-            builder.append("Column: " + column.getName() + "\n");
-        }
-        return builder.toString();
     }
 }

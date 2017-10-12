@@ -22,7 +22,7 @@ public class DatabaseHelper {
      * @param mainTableName
      * @param tableInterfaces
      */
-    public void createDatabase(String mainTableName, Class<? extends ReflectTableInterface>... tableInterfaces) {
+    public void createDatabase(String mainTableName, Class<? extends ReflectTableInterface>... tableInterfaces) throws DBException {
         DatabaseManager.getInstance().addDatabase(databaseName, mainTableName, tableInterfaces);
 
     }

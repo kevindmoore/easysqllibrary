@@ -109,6 +109,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 		} catch (SQLiteException ex) {
 			Logger.error("Couldn't open " + getDatabaseName()
 					+ " for writing:", ex);
+			printDatabaseState();
 		}
 	}
 
@@ -134,7 +135,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			try {
 				upgradeLatch.await();
 			} catch (InterruptedException e) {
-				Logger.error(e.getMessage());
+				Logger.error(e.getMessage(), e);
 			}
 		}
 		sqLiteDatabase = db;
@@ -159,7 +160,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 				state = STATE.CREATED;
 			}
 		} catch (SQLiteException e) {
-			Logger.error( e.getMessage());
+			Logger.error(e.getMessage(), e);
+			printDatabaseState();
 		} finally {
             if (cursor != null) {
                 cursor.close();
@@ -181,6 +183,18 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 				DBBuilder.printCursor(context, databaseCursor);
 			}
 		}
+	}
+
+	/**
+	 * Print out the database state if something goes very wrong
+	 */
+	private void printDatabaseState() {
+		String databaseState = "\nsqLiteDatabase " + (sqLiteDatabase != null ? " not null" : " is null") +
+				"\nlocalDatabase " + (localDatabase != null ? localDatabase.toString() : " is null") +
+				"\nmetaDatabase " + (metaDatabase != null ? metaDatabase.toString() : " is null") +
+				"\nstate " + state +
+				"\nopenCount " + openCount;
+		Logger.error(databaseState);
 	}
 
 	private List<String> getTableNames(SQLiteDatabase db) {
@@ -235,7 +249,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			sqLiteDatabase.endTransaction();
 			localDatabase.createDatabase();
 		} catch (SQLiteException e) {
-			Logger.error( e.getMessage());
+			Logger.error(e.getMessage(), e);
+			printDatabaseState();
 			throw new DBException(e.getMessage(), e);
 		} finally {
 			if (opening) {
@@ -273,7 +288,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
             }
 			addDatabaseToMeta();
         } catch (SQLiteException e) {
-            Logger.error( e.getMessage());
+            Logger.error(e.getMessage(), e);
+			printDatabaseState();
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -315,7 +331,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	public synchronized void open() throws DBException {
 		Logger.debug(debugging,"open");
 		// Already open
-		if (state == STATE.OPEN || state == STATE.OPENING) {
+		if (sqLiteDatabase != null && (state == STATE.OPEN || state == STATE.OPENING)) {
 			Logger.debug("open: DB already open");
 			return;
 		}
@@ -344,7 +360,9 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			state = STATE.OPEN;
 		} catch (SQLiteException | IllegalStateException e) {
 			Logger.error( "Problems opening database " + mainTableName, e);
+			printDatabaseState();
 			state = STATE.ERROR;
+			close();
 			throw new DBException("Problems opening database " + mainTableName, e);
 		} finally {
 			mLock.unlock();
@@ -380,22 +398,78 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	/**
+	 * Check to see if a table exists
+	 * @param tableName
+	 * @return
+	 * @throws DBException
+	 */
+	public boolean tableExists(String tableName) throws DBException {
+		Logger.debug(debugging,"tableExists");
+		beginOpen();
+		Cursor cursor = null;
+		try {
+			cursor = sqLiteDatabase.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='" + tableName +"'", null);
+			if (cursor == null || cursor.getCount() == 0) {
+				return false;
+			}
+			return true;
+		} catch (SQLiteException e) {
+			Logger.error("tableExists: problems checking for table", e);
+			printDatabaseState();
+			return false;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+			endOpen();
+		}
+	}
+
+	/**
+	 * Create a table
+	 * @param table
+	 * @throws DBException
+	 */
+	public void createTable(Table table) throws DBException {
+		Logger.debug(debugging,"createTable");
+		beginOpen();
+		try {
+			sqLiteDatabase.execSQL(table.getCreateTableString());
+		} catch (SQLiteException e) {
+			Logger.error("createTable: problems creating table " + table.getTableName(), e);
+			printDatabaseState();
+		} finally {
+			endOpen();
+		}
+	}
+
+	/**
 	 * Start a transaction by incrementing the open count and opening the db if necessary Make multiple db class by calling this method
 	 * yourself before other methods
 	 */
 	public void startTransaction() throws DBException {
 		Logger.debug(debugging,"startTransaction");
-		openCount++;
-		open();
+		beginOpen();
 		if (sqLiteDatabase != null) {
 			try {
 				sqLiteDatabase.beginTransaction();
 			} catch (SQLiteException e) {
 				Logger.error("startTransaction: problems beginning Transaction", e);
+				printDatabaseState();
 			}
 		} else {
 			Logger.error("startTransaction: sqLiteDatabase is null");
+			printDatabaseState();
 		}
+	}
+
+	/**
+	 * Open the database if needed. Keep an open count
+	 * @throws DBException
+	 */
+	public void beginOpen() throws DBException {
+		openCount++;
+		open();
 	}
 
 	/**
@@ -409,10 +483,19 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 				sqLiteDatabase.endTransaction();
 			} catch (SQLiteException e) {
 				Logger.error("endTransaction: problems ending Transaction", e);
+				printDatabaseState();
 			}
 		} else {
 			Logger.error("endTransaction: sqLiteDatabase is null");
+			printDatabaseState();
 		}
+		endOpen();
+	}
+
+	/**
+	 * Close the database if needed. Decrement open count
+	 */
+	public void endOpen() {
 		openCount--;
 		openCount = Math.max(0, openCount); // Make sure we don't go below 0
 		if (openCount == 0) {
@@ -442,6 +525,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
                 open();
             } catch (DBException e) {
                 Logger.error( "Problems opening database", e);
+				printDatabaseState();
 			} finally {
 				close();
             }
@@ -485,6 +569,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 				return sqLiteDatabase.getVersion();
 			} catch (DBException e) {
 				Logger.error("Problems opening database", e);
+				printDatabaseState();
 			} finally {
 				close();
 			}
@@ -510,6 +595,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			final boolean deleted = context.deleteDatabase(getDatabaseName());
 			if (!deleted) {
 				Logger.error("Could not delete " + getDatabaseName());
+				printDatabaseState();
 			}
 		} finally {
 			mLock.unlock();
@@ -584,6 +670,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
                 }
 			} catch (DBException | SQLiteException e) {
 				Logger.error( "Problems dropping database during upgrade", e);
+				printDatabaseState();
 			}
 			upgradeLatch.countDown();
 		}
@@ -636,7 +723,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 				selection, selectionArgs, groupBy,
 				having, orderBy, limit);
 		} catch (IllegalArgumentException | SQLiteException e) {
-			Logger.error( e.getMessage());
+			Logger.error(e.getMessage(), e);
+			printDatabaseState();
 			throw new DBException("Problems executing query for database " + mainTableName, e);
 		} finally {
 			if (opening) {
@@ -695,7 +783,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 										selection, selectionArgs, groupBy,
 										having, orderBy, limit, cancellationSignal);
 		} catch (IllegalArgumentException | SQLiteException e) {
-			Logger.error( e.getMessage());
+			Logger.error(e.getMessage(), e);
+			printDatabaseState();
 			throw new DBException("Problems executing query for database " + mainTableName, e);
 		} finally {
 			if (opening) {
@@ -749,7 +838,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 										selection, selectionArgs, groupBy,
 										having, orderBy);
 		} catch (IllegalArgumentException | SQLiteException e) {
-			Logger.error( e.getMessage());
+			Logger.error(e.getMessage(), e);
+			printDatabaseState();
 			throw new DBException("Problems executing query for database " + mainTableName, e);
 		} finally {
 			if (opening) {
@@ -805,7 +895,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 										selection, selectionArgs, groupBy,
 										having, orderBy, limit);
 		} catch (IllegalArgumentException | SQLiteException e) {
-			Logger.error( e.getMessage());
+			Logger.error(e.getMessage(), e);
+			printDatabaseState();
 			throw new DBException("Problems executing query for database " + mainTableName, e);
 		} finally {
 			if (opening) {
@@ -829,7 +920,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			}
 			sqLiteDatabase.execSQL(sql);
         } catch (IllegalArgumentException | SQLiteException e) {
-            Logger.error( e.getMessage());
+			Logger.error(e.getMessage(), e);
+			printDatabaseState();
             throw new DBException("Problems executing " + sql + " for database " + mainTableName, e);
 		} finally {
 			if (opening) {
@@ -855,7 +947,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			}
 			return sqLiteDatabase.rawQuery(sql, selectionArgs);
 		} catch (IllegalArgumentException | SQLiteException e) {
-            Logger.error( e.getMessage());
+			Logger.error(e.getMessage(), e);
+			printDatabaseState();
             throw new DBException("Problems executing " + sql + " for database " + mainTableName, e);
 		} finally {
 			if (opening) {
@@ -878,6 +971,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
             return metaDatabase.getMeta(version, databaseName);
         } catch (DBException e) {
             Logger.error( "Problems getting meta table entry ", e);
+			printDatabaseState();
             return null;
         } finally {
             mLock.unlock();
@@ -897,6 +991,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			return table.getTable().insertEntry(localDatabase, data);
 		} catch (DBException e) {
 			Logger.error( "Problems inserting entry for table " + table, e);
+			printDatabaseState();
 			return null;
 		} finally {
 			endTransaction();
@@ -917,6 +1012,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			return table.getTable().insertEntry(localDatabase, data);
 		} catch (DBException e) {
 			Logger.error( "Problems inserting entry for table " + table, e);
+			printDatabaseState();
 			return -1;
 		} finally {
 			endTransaction();
@@ -939,6 +1035,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
             return table.insertEntry(localDatabase, data, mapper);
         } catch (DBException e) {
             Logger.error( "Problems inserting entry for table " + table, e);
+			printDatabaseState();
             return -1;
         } finally {
             endTransaction();
@@ -956,6 +1053,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			table.getTable().deleteEntry(localDatabase, data);
 		} catch (DBException e) {
 			Logger.error( "Problems deleting entry for table " + table, e);
+			printDatabaseState();
 		} finally {
 			endTransaction();
 			mLock.unlock();
@@ -973,6 +1071,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			table.getTable().deleteEntryWhere(localDatabase, whereClause, whereArgs);
 		} catch (DBException e) {
 			Logger.error( "Problems deleting entry for table " + table, e);
+			printDatabaseState();
 		} finally {
 			endTransaction();
 			mLock.unlock();
@@ -990,6 +1089,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			table.getTable().deleteAllEntries(localDatabase);
 		} catch (DBException e) {
 			Logger.error( "Problems deleting entry for table " + table, e);
+			printDatabaseState();
 		} finally {
 			endTransaction();
 			mLock.unlock();
@@ -1023,6 +1123,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			return table.getTable().getEntry(localDatabase, id);
 		} catch (DBException e) {
 			Logger.error( "Problems getting entry for table " + table, e);
+			printDatabaseState();
 			return null;
 		} finally {
 			mLock.unlock();
@@ -1041,6 +1142,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			return table.getTable().getEntry(localDatabase, columnName, columnValue);
 		} catch (DBException e) {
 			Logger.error( "Problems getting entry for table " + table, e);
+			printDatabaseState();
 			return null;
 		} finally {
 			mLock.unlock();
@@ -1060,6 +1162,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			return table.getTable().updateEntry(localDatabase, data, key);
 		} catch (DBException e) {
 			Logger.error( "Problems updating entry for table " + table, e);
+			printDatabaseState();
 			return null;
 		} finally {
 			endTransaction();
@@ -1080,6 +1183,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			return table.getTable().updateEntry(localDatabase, data, key);
 		} catch (DBException e) {
 			Logger.error( "Problems updating entry for table " + table, e);
+			printDatabaseState();
 			return -1;
 		} finally {
 			endTransaction();
@@ -1100,6 +1204,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			return table.getTable().updateEntryWhere(localDatabase, cv, whereClause, whereArgs);
 		} catch (DBException e) {
 			Logger.error( "Problems updating entry for table " + table, e);
+			printDatabaseState();
 			return -1;
 		} finally {
 			endTransaction();
@@ -1119,6 +1224,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 			return table.getTable().getAllEntries(localDatabase);
 		} catch (DBException e) {
 			Logger.error( "Problems getting all entries for table " + table, e);
+			printDatabaseState();
 			return null;
 		} finally {
 			mLock.unlock();
@@ -1139,6 +1245,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
             return table.getAllEntries(localDatabase, cls, mapper);
         } catch (DBException e) {
             Logger.error( "Problems getting all entries for table " + table, e);
+			printDatabaseState();
             return null;
         } finally {
             mLock.unlock();
@@ -1151,8 +1258,8 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	 * @return true if executed.
 	 */
 	protected boolean executeTask(Runnable aRunnable) {
-		// Lock it!
-		mLock.lock();
+//		// Lock it!
+//		mLock.lock();
 
 		// Wrap the whole thing so we can make sure to unlock in
 		// case something throws.
@@ -1171,7 +1278,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 		} catch (Exception RejectedExecutionException) {
 			return false;
 		} finally {
-			mLock.unlock();
+//			mLock.unlock();
 		}
 
 		// Return the request token so the request can be canceled.

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -397,5 +398,16 @@ public abstract class Table<T> {
 		public ContentValues build() {
 			return contentValues;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "Table{" +
+				"tableName='" + tableName + '\'' +
+				", idField='" + idField + '\'' +
+				", columns=" + columns +
+				", projection=" + Arrays.toString(projection) +
+				", version=" + version +
+				'}';
 	}
 }

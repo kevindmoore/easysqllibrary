@@ -116,14 +116,9 @@ public class CookieDatabaseHelper extends BaseDatabaseHelper {
         // Wrap the whole thing so we can make sure to unlock in
         // case something throws.
         try {
-			startTransaction();
             return cookieTable.getCookieStore(localDatabase);
-		} catch (DBException e) {
-			Logger.error(this, "Problems getting cookie store");
         } finally {
-			endTransaction();
             mLock.unlock();
         }
-		return null;
     }
 }

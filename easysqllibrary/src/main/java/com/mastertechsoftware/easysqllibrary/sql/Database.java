@@ -234,4 +234,13 @@ public class Database {
 	public Object getAllTableEntries(Table table) throws DBException {
 		return table.getAllEntries(this);
 	}
+
+	@Override
+	public String toString() {
+		return "Database{" +
+				"tables=" + tables +
+				", database=" + database +
+				", version=" + version +
+				'}';
+	}
 }
