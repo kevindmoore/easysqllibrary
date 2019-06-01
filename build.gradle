@@ -5,6 +5,7 @@ buildscript {
     apply from: '../tools.gradle'
 
     repositories {
+        google()
         jcenter()
     }
     dependencies {
@@ -22,6 +23,7 @@ apply from: '../projects.gradle'
 
 allprojects {
     repositories {
+        google()
         jcenter()
     }
 }

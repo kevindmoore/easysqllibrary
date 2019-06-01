@@ -193,7 +193,7 @@ public abstract class Table<T> {
      * @param data
      * @return the id of the object created
      */
-    public abstract int insertEntry(Database database, List<String> data) throws DBException;
+    public abstract long insertEntry(Database database, List<String> data) throws DBException;
 
     /**
      * Generic method to insert a table entry
@@ -201,7 +201,7 @@ public abstract class Table<T> {
      * @param data
      * @return the id of the object created
      */
-    public abstract int insertEntry(Database database, ContentValues data) throws DBException;
+    public abstract long insertEntry(Database database, ContentValues data) throws DBException;
 
     /**
      * Insert a new entry into the db using a mapper
@@ -210,14 +210,14 @@ public abstract class Table<T> {
      * @param mapper
      * @return new id
      */
-    public abstract int insertEntry(Database database, T data, DataMapper<T> mapper) throws DBException;
+    public abstract long insertEntry(Database database, T data, DataMapper<T> mapper) throws DBException;
         /**
           * Generic method to delete a table entry
           *
           * @param database
           * @param key
           */
-	public abstract int deleteEntry(Database database, Object key) throws DBException;
+	public abstract long deleteEntry(Database database, Object key) throws DBException;
 
 	/**
 	 * Delete the entry with the given where clause and values
@@ -225,7 +225,7 @@ public abstract class Table<T> {
 	 * @param whereClause
 	 * @param whereArgs
 	 */
-	public abstract int deleteEntryWhere(Database database, String whereClause, String[] whereArgs) throws DBException;
+	public abstract long deleteEntryWhere(Database database, String whereClause, String[] whereArgs) throws DBException;
 
 	/**
 	 * Delete the entry with the given where column and value
@@ -233,7 +233,7 @@ public abstract class Table<T> {
 	 * @param columnName
 	 * @param columnValue
 	 */
-	public abstract int deleteEntryWhere(Database database, String columnName, String columnValue) throws DBException;
+	public abstract long deleteEntryWhere(Database database, String columnName, String columnValue) throws DBException;
 
 
 		/**
@@ -286,7 +286,7 @@ public abstract class Table<T> {
      * @param key
      * @return the number of objects updated
      */
-    public abstract int updateEntry(Database database, List<String> data, Object key) throws DBException;
+    public abstract long updateEntry(Database database, List<String> data, Object key) throws DBException;
 
     /**
      * Generic method to update a table entry
@@ -295,7 +295,7 @@ public abstract class Table<T> {
      * @param key
      * @return the number of objects updated
      */
-    public abstract int updateEntry(Database database, ContentValues data, Object key) throws DBException;
+    public abstract long updateEntry(Database database, ContentValues data, Object key) throws DBException;
 
     /**
 	 * Update the entry with the given where clause and values
@@ -305,7 +305,7 @@ public abstract class Table<T> {
 	 * @param whereArgs
 	 * @return number of items updated
 	 */
-	public abstract int updateEntryWhere(Database database, ContentValues cv, String whereClause, String[] whereArgs) throws DBException;
+	public abstract long updateEntryWhere(Database database, ContentValues cv, String whereClause, String[] whereArgs) throws DBException;
 
 	/**
 	 * Return the string identifying the id field. Usually _id

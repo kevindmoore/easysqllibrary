@@ -6,7 +6,7 @@ To start using the library add the following to your build.gradle file (not the 
 
 ```
 Gradle
-compile "com.mastertechsoftware.easysqllibrary:easysqllibrary:1.0.6"
+compile "com.mastertechsoftware.easysqllibrary:easysqllibrary:1.0.9"
 ```  
 
 ### Initialization
@@ -91,8 +91,6 @@ To delete the entire database (if you were upgrading and needed to build it agai
 ```
 databaseHelper.deleteDatabase();  
 ```
-### Handling multiple tables
-To handle multiple classes at once, use the DatabaseManager.
 
 ### Proguard
 EasySQLLibrary uses reflection so you will have to keep the model classes in your proguard file

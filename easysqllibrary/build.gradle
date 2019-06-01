@@ -2,16 +2,25 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-def currentVersion = "1.0.11"
+
+ext {
+    github = 'https://github.com/kevindmoore/easysqllibrary'
+    githubUrl = 'https://github.com/kevindmoore/easysqllibrary.git'
+    projName = 'easysqllibrary'
+    projDescription = 'Library for SQLite'
+    currentVersionCode = 12
+    currentVersion = '2.0.0'
+    groupId = 'com.mastertechsoftware.easysqllibrary'
+    buildPath = 'com/mastertechsoftware/easysqllibrary/easysqllibrary/' + currentVersion
+}
 
 android {
     compileSdkVersion androidCompileSdkVersion
-    buildToolsVersion androidBuildToolsVersion
 
     defaultConfig {
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
-        versionCode 11
+        versionCode currentVersionCode
         versionName currentVersion
     }
     buildTypes {
@@ -61,14 +70,14 @@ artifacts {
 install {
     repositories.mavenInstaller {
         pom.project {
-            name 'easysqllibrary'
-            description 'Library for SQLite'
-            url 'https://github.com/kevindmoore/easysqllibrary'
+            name projName
+            description projDescription
+            url github
             inceptionYear '2016'
 
             packaging 'aar'
-            groupId 'com.mastertechsoftware.easysqllibrary'
-            artifactId 'easysqllibrary'
+            groupId groupId
+            artifactId projName
             version currentVersion
 
             licenses {
@@ -79,8 +88,8 @@ install {
                 }
             }
             scm {
-                connection 'https://github.com/kevindmoore/easysqllibrary.git'
-                url 'https://github.com/kevindmoore/easysqllibrary'
+                connection githubUrl
+                url github
 
             }
             developers {
@@ -94,21 +103,38 @@ install {
 
 //install.dependsOn artifacts
 
-group = 'com.mastertechsoftware.easysqllibrary'
+group = groupId
 version = currentVersion
 
 bintray {
     user = bintray_user
     key = bintray_key
     dryRun = false //Whether to run this as dry-run, without deploying
+//    filesSpec {
+//        from ('build/libs') {
+//            include '*.jar'
+//            rename ("sqlLibrary-" + currentVersion + "-(.*)\\.jar", projName + '-' + currentVersion + "-\$1.jar")
+//        }
+//        into buildPath
+//        from ('build/outputs/aar') {
+//            include 'sqlLibrary-release.aar'
+//            rename {projName + '-' + currentVersion + ".aar"}
+//        }
+//        into buildPath
+//        from ('build/poms') {
+//            include '*.xml'
+//            rename {projName + '-' + currentVersion + ".pom"}
+//        }
+//        into buildPath
+//    }
     pkg {
         repo = 'maven'
-        name = 'easysqllibrary'
+        name = projName
 
         labels = ['android']
         licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/kevindmoore/easysqllibrary.git'
-        websiteUrl = 'https://github.com/kevindmoore/easysqllibrary'
+        vcsUrl = githubUrl
+        websiteUrl = github
     }
     configurations = ['archives']
 }

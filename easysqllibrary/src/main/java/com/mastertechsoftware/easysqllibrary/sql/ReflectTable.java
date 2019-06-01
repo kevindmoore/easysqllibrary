@@ -1,11 +1,11 @@
 package com.mastertechsoftware.easysqllibrary.sql;
 
-import com.mastertechsoftware.easysqllibrary.reflect.UtilReflector;
-import com.mastertechsoftware.logging.Logger;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+
+import com.mastertechsoftware.easysqllibrary.reflect.UtilReflector;
+import com.mastertechsoftware.logging.Logger;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -53,6 +53,10 @@ public class ReflectTable<T> extends AbstractTable<T> {
                 column_type = Column.COLUMN_TYPE.TIMESTAMP;
             } else if (fieldType == String.class || fieldType == Character.class) {
                 column_type = Column.COLUMN_TYPE.TEXT;
+//            } else if (fieldType == ArrayList.class) {
+//				Column column = new Column(fieldName + "_id", Column.COLUMN_TYPE.INTEGER, false);
+//				addColumn(column);
+//				continue;
             } else if (fieldType == Object.class) {
                 throw new IllegalArgumentException("ReflectTable does not support Objects. Please use basic field types");
             } else {
@@ -102,7 +106,7 @@ public class ReflectTable<T> extends AbstractTable<T> {
      * @param mapper
      * @return new id
      */
-    public int insertEntry(Database database, T data, DataMapper<T> mapper) throws DBException {
+    public long insertEntry(Database database, T data, DataMapper<T> mapper) throws DBException {
         if (data == null) {
             Logger.error("insertEntry data is null");
             return -1;
@@ -169,7 +173,7 @@ public class ReflectTable<T> extends AbstractTable<T> {
 
 
     @Override
-    public int deleteEntryWhere(Database database, String whereClause, String[] whereArgs) throws DBException {
+    public long deleteEntryWhere(Database database, String whereClause, String[] whereArgs) throws DBException {
         List<? extends T> allEntries = getAllEntriesWhere(database, whereClause, whereArgs, (Class<T>) type.getClass(), getMapper());
         List<Field> reflectfields = getReflectFields();
         for (Field reflectfield : reflectfields) {
@@ -191,7 +195,7 @@ public class ReflectTable<T> extends AbstractTable<T> {
         return super.deleteEntryWhere(database, whereClause, whereArgs);
     }
 
-    public int deleteEntryWhere(Database database, String columnName, String columnValue) throws DBException {
+    public long deleteEntryWhere(Database database, String columnName, String columnValue) throws DBException {
         List<? extends T> allEntries = getAllEntriesWhere(database, (Class<T>) type.getClass(), columnName, columnValue, getMapper());
         List<Field> reflectfields = getReflectFields();
         for (Field reflectfield : reflectfields) {

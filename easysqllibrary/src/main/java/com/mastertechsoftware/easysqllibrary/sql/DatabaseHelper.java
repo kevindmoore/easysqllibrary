@@ -40,7 +40,7 @@ public class DatabaseHelper {
      * @param id
      * @return table item
      */
-    public ReflectTableInterface get(Class<? extends ReflectTableInterface> tableClass, int id) {
+    public ReflectTableInterface get(Class<? extends ReflectTableInterface> tableClass, long id) {
         return (ReflectTableInterface) DatabaseManager.getInstance().getItem(databaseName, tableClass, id);
     }
 
@@ -52,7 +52,17 @@ public class DatabaseHelper {
 	 * @return list of items
 	 */
     public List<? extends ReflectTableInterface> getWhere(Class<? extends ReflectTableInterface> tableClass, String columnName, String columnValue) {
-        return (List<? extends ReflectTableInterface>) DatabaseManager.getInstance().getItemsWhere(databaseName, tableClass, columnName, columnValue);
+        return DatabaseManager.getInstance().getItemsWhere(databaseName, tableClass, columnName, columnValue);
+    }
+
+	/**
+	 * Return a list of item where the fields
+	 * @param tableClass
+	 * @param fields
+	 * @return list of items
+	 */
+    public List<? extends ReflectTableInterface> getWhere(Class<? extends ReflectTableInterface> tableClass, List<ColumnValue> fields) {
+        return DatabaseManager.getInstance().getItemsWhere(databaseName, tableClass, fields);
     }
 
 	/**
@@ -61,7 +71,7 @@ public class DatabaseHelper {
      * @return List of Table
      */
     public List<? extends ReflectTableInterface> getAll(Class<? extends ReflectTableInterface> tableClass) {
-        return  (List<ReflectTableInterface>)DatabaseManager.getInstance().getAllItems(databaseName, tableClass);
+        return DatabaseManager.getInstance().getAllItems(databaseName, tableClass);
     }
 
 	/**
@@ -114,6 +124,16 @@ public class DatabaseHelper {
      */
     public void delete(Class<? extends ReflectTableInterface> tableClass, ReflectTableInterface table) {
         DatabaseManager.getInstance().deleteItem(databaseName, tableClass, table.getId());
-
     }
+
+	/**
+	 * Delete items where a column equals the column value
+	 * @param tableClass
+	 * @param columnName
+	 * @param columnValue
+	 */
+	public void deleteItemWhere(Class<? extends ReflectTableInterface> tableClass, String columnName, String columnValue) {
+		DatabaseManager.getInstance().deleteItemWhere(databaseName, tableClass, columnName, columnValue);
+
+	}
 }

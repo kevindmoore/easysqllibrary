@@ -1,12 +1,12 @@
 package com.mastertechsoftware.easysqllibrary.sql;
 
-import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeStrategy;
-import com.mastertechsoftware.logging.Logger;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.CancellationSignal;
+
+import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeStrategy;
+import com.mastertechsoftware.logging.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -98,7 +98,7 @@ public class DatabaseManager {
      * @param data
      * @return id of added item. -1 if there was an error
      */
-    public int addItem(String dbName, Class<? extends ReflectTableInterface> type, ReflectTableInterface data) {
+    public long addItem(String dbName, Class<? extends ReflectTableInterface> type, ReflectTableInterface data) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -132,7 +132,7 @@ public class DatabaseManager {
      * @param whereArgs
      * @return result
      */
-    public int updateEntryWhere(String dbName, Class<? extends ReflectTableInterface> type, ContentValues cv, String whereClause,
+    public long updateEntryWhere(String dbName, Class<? extends ReflectTableInterface> type, ContentValues cv, String whereClause,
                                 String[] whereArgs) {
 
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
@@ -211,7 +211,7 @@ public class DatabaseManager {
      * @param columnValue
      * @return List of items
      */
-    public List getItemsWhere(String dbName, Class<? extends ReflectTableInterface> type, String columnName, String columnValue) {
+    public List<? extends ReflectTableInterface> getItemsWhere(String dbName, Class<? extends ReflectTableInterface> type, String columnName, String columnValue) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -227,7 +227,7 @@ public class DatabaseManager {
 	 * @param fields
 	 * @return
 	 */
-    public List getItemsWhere(String dbName, Class<? extends ReflectTableInterface> type, List<ColumnValue> fields) {
+    public List<? extends ReflectTableInterface> getItemsWhere(String dbName, Class<? extends ReflectTableInterface> type, List<ColumnValue> fields) {
         ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
@@ -243,14 +243,14 @@ public class DatabaseManager {
 	 * @param id
 	 * @return Object
 	 */
-	public Object getItem(String dbName, Class<? extends ReflectTableInterface> type, int id) {
+	public Object getItem(String dbName, Class<? extends ReflectTableInterface> type, long id) {
 		ReflectionDBHelper reflectionDBHelper = databases.get(dbName);
 		if (reflectionDBHelper == null) {
 			Logger.error("Could not find helper for database " + dbName);
 			return null;
 		}
 		try {
-			return reflectionDBHelper.getItem(type, id, (ReflectTableInterface) type.newInstance());
+			return reflectionDBHelper.getItem(type, id, type.newInstance());
 		} catch (InstantiationException e) {
 			Logger.error("Problems Creating object of type " + type.getName(), e);
 		} catch (IllegalAccessException e) {

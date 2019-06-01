@@ -1,10 +1,10 @@
 package com.mastertechsoftware.easysqllibrary.sql;
 
-import com.mastertechsoftware.logging.Logger;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.CancellationSignal;
+
+import com.mastertechsoftware.logging.Logger;
 
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -56,12 +56,12 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 	 * @param item
 	 * @return id
 	 */
-	public int addItem(T item) {
+	public long addItem(T item) {
 		// Lock it!
 		mLock.lock();
 		try {
 			databaseHelper.startTransaction();
-			int id = table.insertEntry(database, item, table.getMapper());
+			long id = table.insertEntry(database, item, table.getMapper());
 			item.setId((int) id);
 			return id;
 		} catch (DBException e) {
@@ -370,7 +370,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 		mLock.lock();
 		try {
 			databaseHelper.startTransaction();
-			int deleted = table.deleteEntryWhere(database, Table.ID, String.valueOf(id));
+			long deleted = table.deleteEntryWhere(database, Table.ID, String.valueOf(id));
 			if (deleted < 1) {
 				Logger.error("Could not delete item with id " + id);
 			}
@@ -392,7 +392,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
         mLock.lock();
         try {
             databaseHelper.startTransaction();
-            int deleted = table.deleteEntryWhere(database, columnName, columnValue);
+            long deleted = table.deleteEntryWhere(database, columnName, columnValue);
             Logger.debug("Deleted " + deleted + " items ");
         } catch (DBException e) {
             Logger.error(this, "deleteItemWhere:Problems starting transaction: " + e.getMessage() );
@@ -422,7 +422,7 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 		mLock.lock();
 		try {
 			databaseHelper.startTransaction();
-			int result = table.updateEntry(database, item, id, table.getMapper());
+			long result = table.updateEntry(database, item, id, table.getMapper());
             if (result <= 0) {
                 Logger.error("Unable to update table " + table.getTableName());
             }
@@ -441,14 +441,14 @@ public class CRUDHelper<T extends ReflectTableInterface> {
 	 * @param whereArgs
 	 * @return result
 	 */
-	public int updateEntryWhere(ContentValues cv, String whereClause,
+	public long updateEntryWhere(ContentValues cv, String whereClause,
 								String[] whereArgs) {
 
 		// Lock it!
 		mLock.lock();
 		try {
 			databaseHelper.startTransaction();
-			int result = table.updateEntryWhere(database, cv, whereClause, whereArgs);
+			long result = table.updateEntryWhere(database, cv, whereClause, whereArgs);
 			if (result <= 0) {
 				Logger.error("Unable to update table " + table.getTableName());
 			}

@@ -1,10 +1,5 @@
 package com.mastertechsoftware.easysqllibrary.sql;
 
-import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeHolder;
-import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeStrategy;
-import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeTable;
-import com.mastertechsoftware.logging.Logger;
-
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,6 +9,11 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
+
+import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeHolder;
+import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeStrategy;
+import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeTable;
+import com.mastertechsoftware.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -1175,7 +1175,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	 *
 	 * @return # of items updated
 	 */
-	public int updateEntry(TableEntry table, List<String> data, Object key) {
+	public long updateEntry(TableEntry table, List<String> data, Object key) {
 		// Lock it!
 		mLock.lock();
 		try {
@@ -1196,7 +1196,7 @@ public class BaseDatabaseHelper extends SQLiteOpenHelper {
 	 *
 	 * @return # of rows updated
 	 */
-	public int updateEntryWhere(TableEntry table, ContentValues cv, String whereClause, String[] whereArgs) {
+	public long updateEntryWhere(TableEntry table, ContentValues cv, String whereClause, String[] whereArgs) {
 		// Lock it!
 		mLock.lock();
 		try {

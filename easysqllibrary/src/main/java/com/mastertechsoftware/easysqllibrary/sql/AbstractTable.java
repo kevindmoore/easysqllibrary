@@ -1,11 +1,11 @@
 
 package com.mastertechsoftware.easysqllibrary.sql;
 
-import com.mastertechsoftware.logging.Logger;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+
+import com.mastertechsoftware.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class AbstractTable<T> extends Table<T> {
      * @param mapper
      * @return new id
      */
-    public int insertEntry(Database database, T data, DataMapper<T> mapper) throws DBException {
+    public long insertEntry(Database database, T data, DataMapper<T> mapper) throws DBException {
         int columnPosition = 0;
         ContentValues cv = new ContentValues();
         for (Column column : columns) {
@@ -58,7 +58,7 @@ public class AbstractTable<T> extends Table<T> {
      * @return id of new item
      */
     @Override
-    public int insertEntry(Database database, List<String> data) throws DBException {
+    public long insertEntry(Database database, List<String> data) throws DBException {
         ContentValues cv = new ContentValues();
         int columnSize = columns.size();
         int dataSize = data.size();
@@ -80,10 +80,10 @@ public class AbstractTable<T> extends Table<T> {
      * @return id of new item
      */
     @Override
-    public int insertEntry(Database database, ContentValues data) throws DBException {
-        int id = 0;
+    public long insertEntry(Database database, ContentValues data) throws DBException {
+        long id = 0;
         try {
-            id = (int) database.getDatabase().insert(getTableName(), getIdField(), data);
+            id = database.getDatabase().insert(getTableName(), getIdField(), data);
         } catch (SQLiteException e) {
             Logger.error(e.getMessage(), e);
 			throw new DBException(e.getMessage(), e);
@@ -97,7 +97,7 @@ public class AbstractTable<T> extends Table<T> {
      * @param key - id to delete
      */
     @Override
-    public int deleteEntry(Database database, Object key) throws DBException {
+    public long deleteEntry(Database database, Object key) throws DBException {
         String[] whereArgs = new String[1];
         whereArgs[0] = String.valueOf(key);
         try {
@@ -115,7 +115,7 @@ public class AbstractTable<T> extends Table<T> {
      * @param whereArgs
      */
     @Override
-    public int deleteEntryWhere(Database database, String whereClause, String[] whereArgs) throws DBException {
+    public long deleteEntryWhere(Database database, String whereClause, String[] whereArgs) throws DBException {
         try {
             return database.getDatabase().delete(getTableName(), whereClause, whereArgs);
         } catch (SQLiteException e) {
@@ -130,7 +130,7 @@ public class AbstractTable<T> extends Table<T> {
 	 * @param columnName
 	 * @param columnValue
 	 */
-    public int deleteEntryWhere(Database database, String columnName, String columnValue) throws DBException {
+    public long deleteEntryWhere(Database database, String columnName, String columnValue) throws DBException {
 		String[] whereArgs = new String[1];
 		whereArgs[0] = columnValue;
         try {
@@ -341,7 +341,7 @@ public class AbstractTable<T> extends Table<T> {
      * @return # of items updated
      */
     @Override
-    public int updateEntry(Database database, List<String> data, Object key) throws DBException {
+    public long updateEntry(Database database, List<String> data, Object key) throws DBException {
         ContentValues cv = new ContentValues();
         int columnSize = columns.size();
         int dataSize = data.size();
@@ -360,7 +360,7 @@ public class AbstractTable<T> extends Table<T> {
      * @return # of items updated
      */
     @Override
-    public int updateEntry(Database database, ContentValues data, Object key) throws DBException {
+    public long updateEntry(Database database, ContentValues data, Object key) throws DBException {
         try {
             String[] whereArgs = {String.valueOf(key)};
             return database.getDatabase().update(getTableName(), data, getIdField() + "=?", whereArgs);
@@ -378,7 +378,7 @@ public class AbstractTable<T> extends Table<T> {
      * @param mapper
      * @return # of items updated
      */
-    public int updateEntry(Database database, T data, Object key, DataMapper<T> mapper) throws DBException {
+    public long updateEntry(Database database, T data, Object key, DataMapper<T> mapper) throws DBException {
         try {
             String[] whereArgs = {String.valueOf(key)};
             int columnPosition = 0;
@@ -406,7 +406,7 @@ public class AbstractTable<T> extends Table<T> {
      * @param mapper
      * @return # of items updated
      */
-    public int updateEntry(Database database, T data, String columnName, String columnValue, DataMapper<T> mapper) throws DBException {
+    public long updateEntry(Database database, T data, String columnName, String columnValue, DataMapper<T> mapper) throws DBException {
         try {
             String[] whereArgs = {columnValue};
             int columnPosition = 0;
@@ -434,7 +434,7 @@ public class AbstractTable<T> extends Table<T> {
     * @return # of items updated
     */
     @Override
-    public int updateEntryWhere(Database database, ContentValues cv, String whereClause,
+    public long updateEntryWhere(Database database, ContentValues cv, String whereClause,
             String[] whereArgs) throws DBException {
         try {
             return database.getDatabase().update(getTableName(), cv, whereClause, whereArgs);

@@ -1,12 +1,12 @@
 package com.mastertechsoftware.easysqllibrary.sql;
 
-import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeStrategy;
-import com.mastertechsoftware.logging.Logger;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.CancellationSignal;
+
+import com.mastertechsoftware.easysqllibrary.sql.upgrade.UpgradeStrategy;
+import com.mastertechsoftware.logging.Logger;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -199,7 +199,7 @@ public class ReflectionDBHelper {
 	 * @param data
 	 * @return new position
 	 */
-    public int addItem(Class<? extends ReflectTableInterface> type, ReflectTableInterface data) {
+    public long addItem(Class<? extends ReflectTableInterface> type, ReflectTableInterface data) {
         Integer position = classMapper.get(type);
         if (position == null) {
             Logger.error("Type " + type.getName() + " Not found");
@@ -231,7 +231,7 @@ public class ReflectionDBHelper {
      * @param whereArgs
      * @return result
      */
-    public int updateEntryWhere(Class<? extends ReflectTableInterface> type, ContentValues cv, String whereClause,
+    public long updateEntryWhere(Class<? extends ReflectTableInterface> type, ContentValues cv, String whereClause,
                                 String[] whereArgs) {
         Integer position = classMapper.get(type);
         if (position == null) {
